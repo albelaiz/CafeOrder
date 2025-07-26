@@ -45,7 +45,7 @@ export function useWebSocket(onMessage?: (message: WebSocketMessage) => void) {
         ws.current.close();
       }
     };
-  }, [onMessage]);
+  }, []); // Remove onMessage dependency to prevent reconnections
 
   const sendMessage = (message: WebSocketMessage) => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {

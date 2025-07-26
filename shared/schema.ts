@@ -133,6 +133,7 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
 
 export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
   id: true,
+  orderId: true, // orderId will be set when creating the order  
   createdAt: true,
 });
 
@@ -158,13 +159,6 @@ export type OrderWithItems = Order & {
 };
 
 // Cart item type for frontend
-export type CartItem = {
-  menuItemId: string;
-  name: string;
-  price: number;
-  quantity: number;
-};
-
 export type CartItem = {
   menuItemId: string;
   name: string;
