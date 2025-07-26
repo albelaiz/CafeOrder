@@ -26,14 +26,14 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table (required for Replit Auth)
+// User storage table (for staff and admin only)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role").notNull().default("customer"), // customer, staff, admin
+  role: varchar("role").notNull().default("staff"), // staff, admin
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -64,12 +64,11 @@ export const tables = pgTable("tables", {
 // Order status enum
 export const orderStatusEnum = pgEnum("order_status", ["pending", "preparing", "ready", "completed", "cancelled"]);
 
-// Orders
+// Orders (no customer required)
 export const orders = pgTable("orders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   orderNumber: varchar("order_number").notNull().unique(),
   tableNumber: integer("table_number").notNull(),
-  customerId: varchar("customer_id"),
   status: orderStatusEnum("status").notNull().default("pending"),
   subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
   tax: decimal("tax", { precision: 10, scale: 2 }).notNull(),
@@ -91,12 +90,8 @@ export const orderItems = pgTable("order_items", {
 });
 
 // Relations
-export const ordersRelations = relations(orders, ({ many, one }) => ({
+export const ordersRelations = relations(orders, ({ many }) => ({
   orderItems: many(orderItems),
-  customer: one(users, {
-    fields: [orders.customerId],
-    references: [users.id],
-  }),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
@@ -160,7 +155,14 @@ export type InsertTable = z.infer<typeof insertTableSchema>;
 // Extended types for API responses
 export type OrderWithItems = Order & {
   orderItems: (OrderItem & { menuItem: MenuItem })[];
-  customer?: User;
+};
+
+// Cart item type for frontend
+export type CartItem = {
+  menuItemId: string;
+  name: string;
+  price: number;
+  quantity: number;
 };
 
 export type CartItem = {

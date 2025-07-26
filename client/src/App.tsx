@@ -6,15 +6,32 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigation } from "@/components/Navigation";
 import { useState } from "react";
-import Landing from "@/pages/landing";
-import Customer from "@/pages/customer";
+import Home from "@/pages/home";
+import Order from "@/pages/order";
+import ThankYou from "@/pages/thank-you";
 import Staff from "@/pages/staff";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
+  return (
+    <Switch>
+      {/* Public routes - no authentication required */}
+      <Route path="/" component={Home} />
+      <Route path="/order" component={Order} />
+      <Route path="/thank-you" component={ThankYou} />
+      
+      {/* Protected routes - require authentication */}
+      <Route path="/staff" component={AuthenticatedStaff} />
+      <Route path="/admin" component={AuthenticatedAdmin} />
+      
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+function AuthenticatedStaff() {
   const { isAuthenticated, isLoading, user } = useAuth();
-  const [currentView, setCurrentView] = useState("customer");
 
   if (isLoading) {
     return (
@@ -28,44 +45,63 @@ function Router() {
   }
 
   if (!isAuthenticated) {
+    window.location.href = "/api/login";
+    return null;
+  }
+
+  if (user && user.role !== "staff" && user.role !== "admin") {
     return (
-      <Switch>
-        <Route path="/" component={Landing} />
-        <Route component={Landing} />
-      </Switch>
+      <div className="min-h-screen flex items-center justify-center bg-cafe-bg">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Access Denied</h2>
+          <p className="text-gray-600">You don't have permission to access this page.</p>
+        </div>
+      </div>
     );
   }
 
-  // Determine default view based on user role
-  const getDefaultView = () => {
-    if (user?.role === "admin") return "admin";
-    if (user?.role === "staff") return "staff";
-    return "customer";
-  };
+  return (
+    <div className="min-h-screen bg-cafe-bg">
+      <Navigation currentView="staff" onViewChange={() => {}} />
+      <Staff />
+    </div>
+  );
+}
 
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case "customer":
-        return <Customer />;
-      case "staff":
-        if (user?.role === "staff" || user?.role === "admin") {
-          return <Staff />;
-        }
-        return <Customer />;
-      case "admin":
-        if (user?.role === "admin") {
-          return <Admin />;
-        }
-        return <Customer />;
-      default:
-        return <Customer />;
-    }
-  };
+function AuthenticatedAdmin() {
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-cafe-bg">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cafe-brown mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    window.location.href = "/api/login";
+    return null;
+  }
+
+  if (user && user.role !== "admin") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-cafe-bg">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Access Denied</h2>
+          <p className="text-gray-600">You need admin privileges to access this page.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-cafe-bg">
-      <Navigation currentView={currentView} onViewChange={setCurrentView} />
-      {renderCurrentView()}
+      <Navigation currentView="admin" onViewChange={() => {}} />
+      <Admin />
     </div>
   );
 }

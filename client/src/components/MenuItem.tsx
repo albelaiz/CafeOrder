@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Minus, ShoppingCart } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import type { MenuItem as MenuItemType } from "@shared/schema";
 
 interface MenuItemProps {
@@ -11,79 +11,91 @@ interface MenuItemProps {
 }
 
 export function MenuItem({ item, onAddToCart }: MenuItemProps) {
-  const [quantity, setQuantity] = useState(0);
-
-  const increaseQuantity = () => setQuantity(prev => prev + 1);
-  const decreaseQuantity = () => setQuantity(prev => Math.max(0, prev - 1));
+  const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = () => {
-    if (quantity > 0) {
-      onAddToCart(item, quantity);
-      setQuantity(0);
-    }
+    onAddToCart(item, quantity);
+    setQuantity(1); // Reset quantity after adding
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case "coffee": return "bg-orange-100 text-orange-800";
-      case "food": return "bg-blue-100 text-blue-800";
-      case "desserts": return "bg-purple-100 text-purple-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "coffee":
+        return "bg-amber-100 text-amber-800";
+      case "food":
+        return "bg-green-100 text-green-800";
+      case "desserts":
+        return "bg-pink-100 text-pink-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      {item.imageUrl && (
-        <img
-          src={item.imageUrl}
-          alt={item.name}
-          className="w-full h-48 object-cover"
-        />
-      )}
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-lg text-gray-800">{item.name}</h3>
-          <span className="text-cafe-brown font-bold text-lg">${item.price}</span>
-        </div>
-        
-        <div className="mb-3">
-          <Badge className={getCategoryColor(item.category)}>
-            {item.category}
-          </Badge>
-        </div>
-        
-        {item.description && (
-          <p className="text-gray-600 text-sm mb-3">{item.description}</p>
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow bg-white">
+      <div className="aspect-video relative overflow-hidden">
+        {item.imageUrl ? (
+          <img
+            src={item.imageUrl}
+            alt={item.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-cafe-bg to-orange-100 flex items-center justify-center">
+            <span className="text-cafe-brown text-lg font-semibold">
+              {item.name.charAt(0)}
+            </span>
+          </div>
         )}
-        
+        <Badge
+          className={`absolute top-2 right-2 ${getCategoryColor(item.category)}`}
+        >
+          {item.category}
+        </Badge>
+      </div>
+      
+      <CardContent className="p-4">
+        <div className="mb-3">
+          <h3 className="text-lg font-semibold text-gray-800 mb-1">
+            {item.name}
+          </h3>
+          {item.description && (
+            <p className="text-sm text-gray-600 mb-2">
+              {item.description}
+            </p>
+          )}
+          <p className="text-xl font-bold text-cafe-brown">
+            ${parseFloat(item.price).toFixed(2)}
+          </p>
+        </div>
+
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Button
-              size="sm"
               variant="outline"
-              className="w-8 h-8 rounded-full p-0"
-              onClick={decreaseQuantity}
-              disabled={quantity === 0}
-            >
-              <Minus className="w-3 h-3" />
-            </Button>
-            <span className="font-medium w-8 text-center">{quantity}</span>
-            <Button
               size="sm"
-              className="w-8 h-8 rounded-full p-0 bg-cafe-brown hover:bg-cafe-light"
-              onClick={increaseQuantity}
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              disabled={quantity <= 1}
             >
-              <Plus className="w-3 h-3" />
+              <Minus className="w-4 h-4" />
+            </Button>
+            <span className="px-3 py-1 bg-gray-100 rounded text-sm font-medium">
+              {quantity}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setQuantity(quantity + 1)}
+            >
+              <Plus className="w-4 h-4" />
             </Button>
           </div>
+          
           <Button
-            className="bg-cafe-accent hover:bg-orange-600"
             onClick={handleAddToCart}
-            disabled={quantity === 0}
+            className="bg-cafe-accent hover:bg-orange-600 text-white"
           >
-            <ShoppingCart className="w-4 h-4 mr-1" />
-            Add
+            Add to Cart
           </Button>
         </div>
       </CardContent>

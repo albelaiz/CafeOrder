@@ -1,7 +1,8 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, CreditCard, Trash2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import type { CartItem } from "@shared/schema";
 
 interface CartProps {
@@ -12,98 +13,137 @@ interface CartProps {
   isLoading: boolean;
 }
 
-export function Cart({ cart, onUpdateQuantity, onRemoveItem, onCheckout, isLoading }: CartProps) {
+export function Cart({
+  cart,
+  onUpdateQuantity,
+  onRemoveItem,
+  onCheckout,
+  isLoading,
+}: CartProps) {
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const tax = subtotal * 0.085; // 8.5% tax
   const total = subtotal + tax;
-  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  if (cart.length === 0) {
+    return (
+      <Card className="sticky top-4">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <ShoppingCart className="w-5 h-5 mr-2" />
+            Your Cart
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">Your cart is empty</p>
+            <p className="text-sm text-gray-400 mt-1">
+              Add items from the menu to get started
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Card className="sticky top-24">
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-800">Your Order</h3>
-          <Badge className="bg-cafe-brown text-white">
-            {itemCount}
+    <Card className="sticky top-4">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center">
+            <ShoppingCart className="w-5 h-5 mr-2" />
+            Your Cart
+          </div>
+          <Badge variant="secondary">
+            {cart.reduce((sum, item) => sum + item.quantity, 0)} items
           </Badge>
-        </div>
-        
-        <div className="space-y-3 mb-4 min-h-[100px]">
-          {cart.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              <ShoppingCart className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>Your cart is empty</p>
-              <p className="text-sm">Add items from the menu</p>
-            </div>
-          ) : (
-            cart.map((item) => (
-              <div key={item.menuItemId} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                <div className="flex-1">
-                  <div className="font-medium">{item.name}</div>
-                  <div className="text-sm text-gray-600">${item.price.toFixed(2)} each</div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-6 h-6 p-0"
-                    onClick={() => onUpdateQuantity(item.menuItemId, item.quantity - 1)}
-                  >
-                    -
-                  </Button>
-                  <span className="w-8 text-center">{item.quantity}</span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-6 h-6 p-0"
-                    onClick={() => onUpdateQuantity(item.menuItemId, item.quantity + 1)}
-                  >
-                    +
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="w-6 h-6 p-0 text-red-600 hover:text-red-700"
-                    onClick={() => onRemoveItem(item.menuItemId)}
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </div>
-                <div className="text-right ml-2">
-                  <div className="text-cafe-brown font-bold">
-                    ${(item.price * item.quantity).toFixed(2)}
-                  </div>
-                </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Cart Items */}
+        <div className="space-y-3 max-h-64 overflow-y-auto">
+          {cart.map((item) => (
+            <div key={item.menuItemId} className="flex items-center justify-between">
+              <div className="flex-1">
+                <h4 className="text-sm font-medium text-gray-800">{item.name}</h4>
+                <p className="text-xs text-gray-600">${item.price.toFixed(2)} each</p>
               </div>
-            ))
-          )}
+              
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onUpdateQuantity(item.menuItemId, item.quantity - 1)}
+                  disabled={item.quantity <= 1}
+                  className="h-6 w-6 p-0"
+                >
+                  <Minus className="w-3 h-3" />
+                </Button>
+                
+                <span className="text-sm font-medium w-8 text-center">
+                  {item.quantity}
+                </span>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onUpdateQuantity(item.menuItemId, item.quantity + 1)}
+                  className="h-6 w-6 p-0"
+                >
+                  <Plus className="w-3 h-3" />
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onRemoveItem(item.menuItemId)}
+                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {cart.length > 0 && (
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-medium">Subtotal:</span>
-              <span className="font-bold text-lg">${subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between items-center mb-4 text-sm text-gray-600">
-              <span>Tax (8.5%):</span>
-              <span>${tax.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between items-center mb-6 text-lg font-bold border-t pt-2">
-              <span>Total:</span>
-              <span>${total.toFixed(2)}</span>
-            </div>
-            
-            <Button
-              className="w-full bg-cafe-accent hover:bg-orange-600"
-              onClick={onCheckout}
-              disabled={isLoading}
-            >
-              <CreditCard className="w-4 h-4 mr-2" />
-              {isLoading ? "Processing..." : "Proceed to Checkout"}
-            </Button>
+        <Separator />
+
+        {/* Order Summary */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Subtotal:</span>
+            <span>${subtotal.toFixed(2)}</span>
           </div>
-        )}
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Tax (8.5%):</span>
+            <span>${tax.toFixed(2)}</span>
+          </div>
+          <Separator />
+          <div className="flex justify-between font-semibold">
+            <span>Total:</span>
+            <span className="text-cafe-brown">${total.toFixed(2)}</span>
+          </div>
+        </div>
+
+        {/* Checkout Button */}
+        <Button
+          onClick={onCheckout}
+          disabled={isLoading || cart.length === 0}
+          className="w-full bg-cafe-accent hover:bg-orange-600 text-white font-semibold py-3"
+        >
+          {isLoading ? (
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Processing...
+            </div>
+          ) : (
+            `Place Order - $${total.toFixed(2)}`
+          )}
+        </Button>
+
+        <p className="text-xs text-gray-500 text-center">
+          Your order will be prepared fresh and you'll be notified when ready
+        </p>
       </CardContent>
     </Card>
   );

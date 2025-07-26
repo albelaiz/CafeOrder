@@ -22,7 +22,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Menu routes
+  // Public menu routes (no auth required)
   app.get("/api/menu", async (req, res) => {
     try {
       const { category } = req.query;
@@ -172,6 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     items: z.array(insertOrderItemSchema),
   });
 
+  // Public order creation (no auth required for customers)
   app.post("/api/orders", async (req, res) => {
     try {
       const validatedData = createOrderSchema.parse(req.body);

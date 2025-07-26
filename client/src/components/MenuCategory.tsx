@@ -1,41 +1,42 @@
 import { Button } from "@/components/ui/button";
-import { Coffee, Utensils, Cookie } from "lucide-react";
+import { Coffee, UtensilsCrossed, Cookie } from "lucide-react";
 
 interface MenuCategoryProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
 }
 
-export function MenuCategory({ selectedCategory, onCategoryChange }: MenuCategoryProps) {
-  const categories = [
-    { id: "all", label: "All Items", icon: null },
-    { id: "coffee", label: "Coffee", icon: Coffee },
-    { id: "food", label: "Food", icon: Utensils },
-    { id: "desserts", label: "Desserts", icon: Cookie },
-  ];
+const categories = [
+  { id: "all", name: "All", icon: UtensilsCrossed },
+  { id: "coffee", name: "Coffee & Drinks", icon: Coffee },
+  { id: "food", name: "Food", icon: UtensilsCrossed },
+  { id: "desserts", name: "Desserts", icon: Cookie },
+];
 
+export function MenuCategory({ selectedCategory, onCategoryChange }: MenuCategoryProps) {
   return (
-    <div className="flex space-x-2 mb-6 overflow-x-auto pb-2">
-      {categories.map((category) => {
-        const Icon = category.icon;
-        const isActive = selectedCategory === category.id;
-        
-        return (
-          <Button
-            key={category.id}
-            variant={isActive ? "default" : "outline"}
-            className={`whitespace-nowrap ${
-              isActive
-                ? "bg-cafe-brown text-white hover:bg-cafe-light"
-                : "bg-gray-200 text-gray-700 hover:bg-cafe-light hover:text-white"
-            }`}
-            onClick={() => onCategoryChange(category.id)}
-          >
-            {Icon && <Icon className="w-4 h-4 mr-2" />}
-            {category.label}
-          </Button>
-        );
-      })}
+    <div className="mb-8">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Our Menu</h2>
+      <div className="flex flex-wrap gap-2">
+        {categories.map((category) => {
+          const IconComponent = category.icon;
+          return (
+            <Button
+              key={category.id}
+              variant={selectedCategory === category.id ? "default" : "outline"}
+              onClick={() => onCategoryChange(category.id)}
+              className={`flex items-center space-x-2 ${
+                selectedCategory === category.id
+                  ? "bg-cafe-brown hover:bg-cafe-light text-white"
+                  : "hover:bg-cafe-bg"
+              }`}
+            >
+              <IconComponent className="w-4 h-4" />
+              <span>{category.name}</span>
+            </Button>
+          );
+        })}
+      </div>
     </div>
   );
 }

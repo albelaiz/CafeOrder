@@ -84,7 +84,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(menuItems)
-      .where(and(eq(menuItems.category, category), eq(menuItems.isActive, true)))
+      .where(and(eq(menuItems.category, category as any), eq(menuItems.isActive, true)))
       .orderBy(menuItems.name);
   }
 
@@ -120,7 +120,6 @@ export class DatabaseStorage implements IStorage {
             menuItem: true,
           },
         },
-        customer: true,
       },
       orderBy: [desc(orders.createdAt)],
     });
@@ -129,14 +128,13 @@ export class DatabaseStorage implements IStorage {
 
   async getOrdersByStatus(status: string): Promise<OrderWithItems[]> {
     const ordersWithItems = await db.query.orders.findMany({
-      where: eq(orders.status, status),
+      where: eq(orders.status, status as any),
       with: {
         orderItems: {
           with: {
             menuItem: true,
           },
         },
-        customer: true,
       },
       orderBy: [desc(orders.createdAt)],
     });
@@ -152,7 +150,6 @@ export class DatabaseStorage implements IStorage {
             menuItem: true,
           },
         },
-        customer: true,
       },
     });
     return order;
@@ -180,7 +177,7 @@ export class DatabaseStorage implements IStorage {
   async updateOrderStatus(id: string, status: string): Promise<Order> {
     const [updatedOrder] = await db
       .update(orders)
-      .set({ status, updatedAt: new Date() })
+      .set({ status: status as any, updatedAt: new Date() })
       .where(eq(orders.id, id))
       .returning();
     return updatedOrder;

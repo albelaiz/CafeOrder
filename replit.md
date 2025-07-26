@@ -2,7 +2,7 @@
 
 ## Overview
 
-Café Direct is a modern web application that allows café customers to place orders directly from their tables without waiting for servers. The system includes three main interfaces: a customer ordering interface, a staff dashboard for managing orders, and an admin panel for menu and system management.
+Café Direct is a QR code-based café ordering system where customers can place orders by scanning QR codes at their tables - no signup or authentication required. The system includes three main interfaces: an anonymous customer ordering flow via QR codes, an authenticated staff dashboard for order management, and an authenticated admin panel for menu management and analytics.
 
 ## User Preferences
 
@@ -37,21 +37,23 @@ The application follows a full-stack monorepo architecture with clear separation
 
 ### Database Schema
 The application uses PostgreSQL with the following main entities:
-- **Users**: Customer, staff, and admin accounts with role-based access
+- **Users**: Staff and admin accounts only (customers don't need accounts)
 - **Menu Items**: Products with categories (coffee, food, desserts), pricing, and descriptions
-- **Orders**: Customer orders with status tracking and table assignments
+- **Orders**: Anonymous orders with status tracking and table assignments (no customer ID required)
 - **Order Items**: Individual items within orders with quantities
 - **Tables**: Café table management (planned feature)
-- **Sessions**: Authentication session storage
+- **Sessions**: Authentication session storage for staff/admin only
 
 ## Data Flow
 
-1. **Customer Journey**:
-   - Customer authenticates via Replit Auth
+1. **Customer Journey** (No Authentication Required):
+   - Customer scans QR code at table (e.g., /order?t=4)
+   - Table number automatically detected from URL
    - Browses menu items filtered by category
    - Adds items to shopping cart
-   - Places order with table number
-   - Receives real-time status updates via WebSocket
+   - Places anonymous order linked to table number
+   - Redirected to thank you page
+   - Can receive real-time status updates via WebSocket
 
 2. **Staff Workflow**:
    - Staff logs in and views pending orders
@@ -102,5 +104,14 @@ The application is designed for deployment on Replit with the following build pr
    - Database connection via `DATABASE_URL` environment variable
    - Session security via `SESSION_SECRET`
    - Replit-specific configuration for auth and domains
+
+## Recent Changes (January 2025)
+
+✓ **Major Architecture Update**: Converted from authenticated customer system to QR code-based ordering
+✓ **Database Schema Updated**: Removed customer authentication requirements from orders
+✓ **New Customer Flow**: Added anonymous ordering pages (order.tsx, thank-you.tsx, home.tsx)
+✓ **Route Restructure**: Separated public routes (/, /order, /thank-you) from protected routes (/staff, /admin)
+✓ **Sample Data**: Added seed script with sample menu items and staff accounts
+✓ **UI Components**: Created MenuCategory, MenuItem, and Cart components for ordering interface
 
 The application uses a monorepo structure with shared TypeScript types and utilities, enabling code reuse between client and server while maintaining clear boundaries.
