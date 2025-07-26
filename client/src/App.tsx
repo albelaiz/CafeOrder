@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,6 +11,7 @@ import Order from "@/pages/order";
 import ThankYou from "@/pages/thank-you";
 import Staff from "@/pages/staff";
 import Admin from "@/pages/admin";
+import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +21,9 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/order" component={Order} />
       <Route path="/thank-you" component={ThankYou} />
+      
+      {/* Login route for staff/admin */}
+      <Route path="/login" component={Login} />
       
       {/* Protected routes - require authentication */}
       <Route path="/staff" component={AuthenticatedStaff} />
@@ -45,8 +49,7 @@ function AuthenticatedStaff() {
   }
 
   if (!isAuthenticated) {
-    window.location.href = "/api/login";
-    return null;
+    return <Redirect to="/login" />;
   }
 
   if (user && user.role !== "staff" && user.role !== "admin") {
@@ -83,8 +86,7 @@ function AuthenticatedAdmin() {
   }
 
   if (!isAuthenticated) {
-    window.location.href = "/api/login";
-    return null;
+    return <Redirect to="/login" />;
   }
 
   if (user && user.role !== "admin") {

@@ -2,25 +2,18 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 import { insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema } from "@shared/schema";
 import { z } from "zod";
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+const orderCreationSchema = z.object({
+  order: insertOrderSchema,
+  items: z.array(insertOrderItemSchema),
+});
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+export function registerRoutes(app: Express): Server {
+  // Auth middleware - setup login/logout/session routes
+  setupAuth(app);
 
   // Public menu routes (no auth required)
   app.get("/api/menu", async (req, res) => {
@@ -49,85 +42,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin menu routes (requires admin role)
   app.post("/api/menu", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (user?.role !== "admin") {
+      if (req.user.role !== "admin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
       const validatedData = insertMenuItemSchema.parse(req.body);
-      const newItem = await storage.createMenuItem(validatedData);
-      
-      // Broadcast to all connected clients
-      wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({
-            type: "MENU_ITEM_ADDED",
-            data: newItem
-          }));
-        }
-      });
-
-      res.status(201).json(newItem);
+      const item = await storage.createMenuItem(validatedData);
+      res.status(201).json(item);
     } catch (error) {
-      console.error("Error creating menu item:", error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        res.status(400).json({ message: "Invalid data", errors: error.errors });
+      } else {
+        console.error("Error creating menu item:", error);
+        res.status(500).json({ message: "Failed to create menu item" });
       }
-      res.status(500).json({ message: "Failed to create menu item" });
     }
   });
 
-  app.patch("/api/menu/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/menu/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (user?.role !== "admin") {
+      if (req.user.role !== "admin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
       const validatedData = insertMenuItemSchema.partial().parse(req.body);
-      const updatedItem = await storage.updateMenuItem(req.params.id, validatedData);
-      
-      // Broadcast to all connected clients
-      wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({
-            type: "MENU_ITEM_UPDATED",
-            data: updatedItem
-          }));
-        }
-      });
-
-      res.json(updatedItem);
+      const item = await storage.updateMenuItem(req.params.id, validatedData);
+      res.json(item);
     } catch (error) {
-      console.error("Error updating menu item:", error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        res.status(400).json({ message: "Invalid data", errors: error.errors });
+      } else {
+        console.error("Error updating menu item:", error);
+        res.status(500).json({ message: "Failed to update menu item" });
       }
-      res.status(500).json({ message: "Failed to update menu item" });
     }
   });
 
   app.delete("/api/menu/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (user?.role !== "admin") {
+      if (req.user.role !== "admin") {
         return res.status(403).json({ message: "Admin access required" });
       }
 
       await storage.deleteMenuItem(req.params.id);
-      
-      // Broadcast to all connected clients
-      wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({
-            type: "MENU_ITEM_DELETED",
-            data: { id: req.params.id }
-          }));
-        }
-      });
-
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting menu item:", error);
@@ -135,11 +95,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Order routes
+  // Public order routes (no auth required for customers)
+  app.post("/api/orders", async (req, res) => {
+    try {
+      const { order, items } = orderCreationSchema.parse(req.body);
+      const createdOrder = await storage.createOrder(order, items);
+      res.status(201).json(createdOrder);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid data", errors: error.errors });
+      } else {
+        console.error("Error creating order:", error);
+        res.status(500).json({ message: "Failed to create order" });
+      }
+    }
+  });
+
+  // Staff/Admin order routes (requires authentication)
   app.get("/api/orders", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (user?.role === "customer") {
+      if (req.user.role === "customer") {
         return res.status(403).json({ message: "Staff or admin access required" });
       }
 
@@ -156,6 +131,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/orders/:id", isAuthenticated, async (req: any, res) => {
     try {
+      if (req.user.role === "customer") {
+        return res.status(403).json({ message: "Staff or admin access required" });
+      }
+
       const order = await storage.getOrder(req.params.id);
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
@@ -167,41 +146,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  const createOrderSchema = z.object({
-    order: insertOrderSchema,
-    items: z.array(insertOrderItemSchema),
-  });
-
-  // Public order creation (no auth required for customers)
-  app.post("/api/orders", async (req, res) => {
-    try {
-      const validatedData = createOrderSchema.parse(req.body);
-      const newOrder = await storage.createOrder(validatedData.order, validatedData.items);
-      
-      // Broadcast to all connected clients
-      wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({
-            type: "ORDER_CREATED",
-            data: newOrder
-          }));
-        }
-      });
-
-      res.status(201).json(newOrder);
-    } catch (error) {
-      console.error("Error creating order:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to create order" });
-    }
-  });
-
   app.patch("/api/orders/:id/status", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (user?.role === "customer") {
+      if (req.user.role === "customer") {
         return res.status(403).json({ message: "Staff or admin access required" });
       }
 
@@ -228,8 +175,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Table routes
   app.get("/api/tables", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (user?.role === "customer") {
+      if (req.user.role === "customer") {
         return res.status(403).json({ message: "Staff or admin access required" });
       }
 
@@ -243,8 +189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/tables/:id/status", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (user?.role === "customer") {
+      if (req.user.role === "customer") {
         return res.status(403).json({ message: "Staff or admin access required" });
       }
 
@@ -271,8 +216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Analytics routes
   app.get("/api/analytics/stats", isAuthenticated, async (req: any, res) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
-      if (user?.role === "customer") {
+      if (req.user.role === "customer") {
         return res.status(403).json({ message: "Staff or admin access required" });
       }
 

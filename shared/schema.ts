@@ -29,10 +29,10 @@ export const sessions = pgTable(
 // User storage table (for staff and admin only)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
+  username: varchar("username").notNull().unique(),
+  password: varchar("password").notNull(), // hashed password
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
   role: varchar("role").notNull().default("staff"), // staff, admin
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -110,12 +110,15 @@ export const menuItemsRelations = relations(menuItems, ({ many }) => ({
 }));
 
 // Insert schemas
-export const insertUserSchema = createInsertSchema(users).pick({
-  email: true,
-  firstName: true,
-  lastName: true,
-  profileImageUrl: true,
-  role: true,
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const loginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export const insertMenuItemSchema = createInsertSchema(menuItems).omit({
@@ -142,8 +145,9 @@ export const insertTableSchema = createInsertSchema(tables).omit({
 });
 
 // Types
-export type UpsertUser = z.infer<typeof insertUserSchema>;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type LoginData = z.infer<typeof loginSchema>;
 export type MenuItem = typeof menuItems.$inferSelect;
 export type InsertMenuItem = z.infer<typeof insertMenuItemSchema>;
 export type Order = typeof orders.$inferSelect;
