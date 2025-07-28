@@ -129,6 +129,9 @@ export const insertMenuItemSchema = createInsertSchema(menuItems).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  description: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({

@@ -221,10 +221,12 @@ export function registerRoutes(app: Express): Server {
       }
 
       const { number, capacity } = req.body;
-      const qrCode = `${process.env.REPL_SLUG || 'localhost:5000'}/order?t=${number}`;
+      
+      // Generate proper QR code URL
+      const baseUrl = process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : 'http://localhost:5000';
+      const qrCode = `${baseUrl}/order?t=${number}`;
       
       const tableData = {
-        id: number,
         number,
         capacity: capacity || 4,
         status: "available",

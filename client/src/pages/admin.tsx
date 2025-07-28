@@ -842,19 +842,27 @@ export default function Admin() {
                             
                             if (numberInput.value) {
                               try {
-                                await apiRequest("POST", "/api/tables", {
+                                const response = await apiRequest("POST", "/api/tables", {
                                   number: parseInt(numberInput.value),
                                   capacity: parseInt(capacityInput.value) || 4
                                 });
-                                queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
-                                toast({
-                                  title: "Table Added",
-                                  description: "New table has been created successfully.",
-                                });
+                                
+                                if (response.ok) {
+                                  queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+                                  toast({
+                                    title: "Table Added",
+                                    description: "New table has been created successfully.",
+                                  });
+                                  // Clear the inputs
+                                  numberInput.value = '';
+                                  capacityInput.value = '';
+                                } else {
+                                  throw new Error(await response.text());
+                                }
                               } catch (error) {
                                 toast({
                                   title: "Error",
-                                  description: "Failed to create table",
+                                  description: "Failed to create table. Table number may already exist.",
                                   variant: "destructive",
                                 });
                               }
@@ -899,11 +907,18 @@ export default function Admin() {
                       <div className="text-center mb-3">
                         <div className="inline-block p-2 bg-white border rounded">
                           <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center text-xs">
-                            QR Code<br/>Table {table.number}
+                            <img 
+                              src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(table.qrCode)}`}
+                              alt={`QR Code for Table ${table.number}`}
+                              className="w-full h-full"
+                            />
                           </div>
                         </div>
                         <div className="text-xs text-gray-500 mt-1">
                           Scan to order
+                        </div>
+                        <div className="text-xs text-blue-600 mt-1 break-all">
+                          {table.qrCode}
                         </div>
                       </div>
                       

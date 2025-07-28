@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -16,15 +16,16 @@ export default function LoginPage() {
     password: "",
   });
 
-  // Redirect if already logged in
-  if (!isLoading && user) {
-    if (user.role === "admin") {
-      setLocation("/admin");
-    } else {
-      setLocation("/staff");
+  // Use useEffect for redirect to avoid setState during render
+  useEffect(() => {
+    if (!isLoading && user) {
+      if (user.role === "admin") {
+        setLocation("/admin");
+      } else {
+        setLocation("/staff");
+      }
     }
-    return null;
-  }
+  }, [isLoading, user, setLocation]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
