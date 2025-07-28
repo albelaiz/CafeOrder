@@ -57,7 +57,11 @@ export const menuItems = pgTable("menu_items", {
 // Tables in the café
 export const tables = pgTable("tables", {
   id: integer("id").primaryKey(),
-  status: varchar("status").notNull().default("available"), // available, occupied, reserved
+  number: integer("number").notNull().unique(),
+  status: varchar("status").notNull().default("available"), // available, occupied, reserved, out_of_order
+  capacity: integer("capacity").default(4).notNull(),
+  qrCode: text("qr_code").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 

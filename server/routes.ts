@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
-import { insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema } from "@shared/schema";
+import { insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema, insertTableSchema } from "@shared/schema";
 import { z } from "zod";
 
 const orderCreationSchema = z.object({
@@ -210,6 +210,64 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error updating table status:", error);
       res.status(500).json({ message: "Failed to update table status" });
+    }
+  });
+
+  // Table management routes (admin only)
+  app.post("/api/tables", isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.role !== "admin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { number, capacity } = req.body;
+      const qrCode = `${process.env.REPL_SLUG || 'localhost:5000'}/order?t=${number}`;
+      
+      const tableData = {
+        id: number,
+        number,
+        capacity: capacity || 4,
+        status: "available",
+        qrCode,
+      };
+
+      const newTable = await storage.createTable(tableData as any);
+      res.status(201).json(newTable);
+    } catch (error) {
+      console.error("Error creating table:", error);
+      res.status(500).json({ message: "Failed to create table" });
+    }
+  });
+
+  app.put("/api/tables/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.role !== "admin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { capacity, status } = req.body;
+      const updatedTable = await storage.updateTable(parseInt(req.params.id), {
+        capacity,
+        status,
+      });
+      res.json(updatedTable);
+    } catch (error) {
+      console.error("Error updating table:", error);
+      res.status(500).json({ message: "Failed to update table" });
+    }
+  });
+
+  app.delete("/api/tables/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.role !== "admin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      await storage.deleteTable(parseInt(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting table:", error);
+      res.status(500).json({ message: "Failed to delete table" });
     }
   });
 

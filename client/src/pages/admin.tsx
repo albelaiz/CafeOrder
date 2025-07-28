@@ -34,6 +34,10 @@ export default function Admin() {
     queryKey: ["/api/orders"],
   });
 
+  const { data: tables = [], isLoading: tablesLoading } = useQuery<any[]>({
+    queryKey: ["/api/tables"],
+  });
+
   const { data: stats } = useQuery<{
     revenue: number;
     pendingOrders: number;
@@ -79,8 +83,11 @@ export default function Admin() {
   });
 
   const updateMenuItemMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<MenuItem> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const response = await apiRequest("PATCH", `/api/menu/${id}`, data);
+      if (!response.ok) {
+        throw new Error("Failed to update menu item");
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -426,7 +433,33 @@ export default function Admin() {
                   </DialogContent>
                 </Dialog>
 
-                <Button className="bg-cafe-brown hover:bg-cafe-light">
+                <Button 
+                  className="bg-cafe-brown hover:bg-cafe-light"
+                  onClick={() => {
+                    const dataToExport = {
+                      menuItems,
+                      orders,
+                      tables,
+                      stats,
+                      exportDate: new Date().toISOString()
+                    };
+                    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
+                      type: 'application/json'
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `cafe-data-${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    toast({
+                      title: "Data Exported",
+                      description: "Café data has been exported successfully.",
+                    });
+                  }}
+                >
                   <Download className="w-4 h-4 mr-2" />
                   Export Data
                 </Button>
@@ -763,6 +796,179 @@ export default function Admin() {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {activeTab === "tables" && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800">Table Management</h3>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="bg-cafe-accent hover:bg-orange-600">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Table
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add New Table</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Table Number</label>
+                        <Input 
+                          id="tableNumber"
+                          type="number" 
+                          placeholder="Enter table number" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Capacity</label>
+                        <Input 
+                          id="tableCapacity"
+                          type="number" 
+                          placeholder="Number of seats" 
+                          defaultValue="4"
+                        />
+                      </div>
+                      <div className="flex justify-end space-x-2 pt-4">
+                        <Button variant="outline">Cancel</Button>
+                        <Button 
+                          className="bg-cafe-accent hover:bg-orange-600"
+                          onClick={async () => {
+                            const numberInput = document.getElementById('tableNumber') as HTMLInputElement;
+                            const capacityInput = document.getElementById('tableCapacity') as HTMLInputElement;
+                            
+                            if (numberInput.value) {
+                              try {
+                                await apiRequest("POST", "/api/tables", {
+                                  number: parseInt(numberInput.value),
+                                  capacity: parseInt(capacityInput.value) || 4
+                                });
+                                queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+                                toast({
+                                  title: "Table Added",
+                                  description: "New table has been created successfully.",
+                                });
+                              } catch (error) {
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to create table",
+                                  variant: "destructive",
+                                });
+                              }
+                            }
+                          }}
+                        >
+                          Add Table
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {tablesLoading ? (
+                  [...Array(6)].map((_, i) => (
+                    <div key={i} className="border border-gray-200 rounded-lg p-4 animate-pulse">
+                      <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                      <div className="h-20 bg-gray-200 rounded"></div>
+                    </div>
+                  ))
+                ) : (
+                  tables.map((table) => (
+                    <div key={table.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-bold text-lg">Table {table.number}</div>
+                          <div className="text-sm text-gray-600">{table.capacity} seats</div>
+                        </div>
+                        <Badge className={
+                          table.status === "available" ? "bg-green-100 text-green-800" : 
+                          table.status === "occupied" ? "bg-red-100 text-red-800" :
+                          table.status === "reserved" ? "bg-yellow-100 text-yellow-800" :
+                          "bg-gray-100 text-gray-800"
+                        }>
+                          {table.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="text-center mb-3">
+                        <div className="inline-block p-2 bg-white border rounded">
+                          <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center text-xs">
+                            QR Code<br/>Table {table.number}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Scan to order
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <Select
+                          value={table.status}
+                          onValueChange={async (status) => {
+                            try {
+                              await apiRequest("PATCH", `/api/tables/${table.id}/status`, { status });
+                              queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+                              toast({
+                                title: "Table Updated",
+                                description: `Table ${table.number} status changed to ${status}.`,
+                              });
+                            } catch (error) {
+                              toast({
+                                title: "Error",
+                                description: "Failed to update table status",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="flex-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="available">Available</SelectItem>
+                            <SelectItem value="occupied">Occupied</SelectItem>
+                            <SelectItem value="reserved">Reserved</SelectItem>
+                            <SelectItem value="out_of_order">Out of Order</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="p-2 text-red-600 hover:text-red-700"
+                          onClick={async () => {
+                            if (confirm(`Are you sure you want to delete Table ${table.number}?`)) {
+                              try {
+                                await apiRequest("DELETE", `/api/tables/${table.id}`);
+                                queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+                                toast({
+                                  title: "Table Deleted",
+                                  description: `Table ${table.number} has been removed.`,
+                                });
+                              } catch (error) {
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to delete table",
+                                  variant: "destructive",
+                                });
+                              }
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>

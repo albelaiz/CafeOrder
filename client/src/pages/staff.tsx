@@ -20,6 +20,10 @@ export default function Staff() {
     queryKey: ["/api/orders"],
   });
 
+  const { data: tables = [] } = useQuery<any[]>({
+    queryKey: ["/api/tables"],
+  });
+
   const { data: stats } = useQuery<{
     revenue: number;
     pendingOrders: number;

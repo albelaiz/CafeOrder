@@ -194,12 +194,26 @@ export class DatabaseStorage implements IStorage {
 
   // Table operations
   async getTables(): Promise<Table[]> {
-    return await db.select().from(tables).orderBy(tables.id);
+    return await db.select().from(tables).orderBy(tables.number);
   }
 
   async getTable(id: number): Promise<Table | undefined> {
     const [table] = await db.select().from(tables).where(eq(tables.id, id));
     return table;
+  }
+
+  async createTable(data: InsertTable): Promise<Table> {
+    const [newTable] = await db.insert(tables).values(data).returning();
+    return newTable;
+  }
+
+  async updateTable(id: number, data: Partial<InsertTable>): Promise<Table> {
+    const [updatedTable] = await db
+      .update(tables)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(tables.id, id))
+      .returning();
+    return updatedTable;
   }
 
   async updateTableStatus(id: number, status: string): Promise<Table> {
@@ -209,6 +223,10 @@ export class DatabaseStorage implements IStorage {
       .where(eq(tables.id, id))
       .returning();
     return updatedTable;
+  }
+
+  async deleteTable(id: number): Promise<void> {
+    await db.delete(tables).where(eq(tables.id, id));
   }
 
   // Analytics
