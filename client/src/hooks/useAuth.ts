@@ -14,6 +14,10 @@ export function useAuth() {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       const res = await apiRequest("POST", "/api/login", credentials);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Login failed");
+      }
       return await res.json();
     },
     onSuccess: (user) => {
@@ -25,8 +29,10 @@ export function useAuth() {
     },
     onError: (error: Error) => {
       toast({
-        title: "Login Failed",
-        description: error.message,
+        title: "Login Failed", 
+        description: error.message === "Invalid credentials" 
+          ? "Incorrect username or password. Please try again."
+          : error.message,
         variant: "destructive",
       });
     },

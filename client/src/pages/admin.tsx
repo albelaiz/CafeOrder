@@ -19,7 +19,7 @@ import { insertMenuItemSchema } from "@shared/schema";
 import { z } from "zod";
 
 const formSchema = insertMenuItemSchema.extend({
-  price: z.string().transform(val => parseFloat(val)),
+  price: z.string().min(1, "Price is required").transform(val => parseFloat(val)),
 });
 
 export default function Admin() {
@@ -36,7 +36,12 @@ export default function Admin() {
     queryKey: ["/api/orders"],
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<{
+    revenue: number;
+    pendingOrders: number;
+    completedToday: number;
+    totalOrders: number;
+  }>({
     queryKey: ["/api/analytics/stats"],
   });
 
@@ -45,8 +50,8 @@ export default function Admin() {
     defaultValues: {
       name: "",
       description: "",
-      price: "",
-      category: "coffee",
+      price: "0",
+      category: "coffee" as const,
       imageUrl: "",
       isActive: true,
     },
@@ -235,7 +240,7 @@ export default function Admin() {
                             <FormItem>
                               <FormLabel>Description</FormLabel>
                               <FormControl>
-                                <Textarea placeholder="Enter item description" {...field} />
+                                <Textarea placeholder="Enter item description" {...field} value={field.value || ""} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -248,7 +253,7 @@ export default function Admin() {
                             <FormItem>
                               <FormLabel>Image URL</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter image URL" {...field} />
+                                <Input placeholder="Enter image URL" {...field} value={field.value || ""} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>

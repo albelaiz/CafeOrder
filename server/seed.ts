@@ -1,5 +1,6 @@
 import { db } from "./db";
 import { menuItems, users } from "@shared/schema";
+import { hashPassword } from "./auth";
 
 const sampleMenuItems = [
   // Coffee & Drinks
@@ -123,15 +124,15 @@ const sampleMenuItems = [
 
 const sampleUsers = [
   {
-    id: "admin-1",
-    email: "admin@cafe.com",
+    username: "admin",
+    password: "admin123", // Will be hashed
     firstName: "Admin",
     lastName: "User",
     role: "admin",
   },
   {
-    id: "staff-1", 
-    email: "staff@cafe.com",
+    username: "staff",
+    password: "staff123", // Will be hashed
     firstName: "Staff",
     lastName: "Member",
     role: "staff",
@@ -146,8 +147,15 @@ async function seedDatabase() {
     await db.delete(menuItems);
     await db.delete(users);
 
-    // Insert sample users
-    await db.insert(users).values(sampleUsers);
+    // Insert sample users with hashed passwords
+    const usersWithHashedPasswords = await Promise.all(
+      sampleUsers.map(async (user) => ({
+        ...user,
+        password: await hashPassword(user.password),
+      }))
+    );
+    
+    await db.insert(users).values(usersWithHashedPasswords);
     console.log("Sample users inserted");
 
     // Insert sample menu items

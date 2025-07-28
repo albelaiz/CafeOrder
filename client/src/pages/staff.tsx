@@ -20,7 +20,12 @@ export default function Staff() {
     queryKey: ["/api/orders"],
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<{
+    revenue: number;
+    pendingOrders: number;
+    completedToday: number;
+    totalOrders: number;
+  }>({
     queryKey: ["/api/analytics/stats"],
   });
 
