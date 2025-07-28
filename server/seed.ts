@@ -7,7 +7,7 @@ const sampleMenuItems = [
   {
     name: "Espresso",
     category: "coffee" as const,
-    price: "3.50",
+    price: "35.00",
     description: "Rich, bold shot of espresso with a perfect crema",
     imageUrl: null,
     isActive: true,
@@ -15,7 +15,7 @@ const sampleMenuItems = [
   {
     name: "Cappuccino",
     category: "coffee" as const,
-    price: "4.75",
+    price: "45.00",
     description: "Classic espresso with steamed milk and foam",
     imageUrl: null,
     isActive: true,
@@ -23,7 +23,7 @@ const sampleMenuItems = [
   {
     name: "Latte",
     category: "coffee" as const,
-    price: "5.25",
+    price: "50.00",
     description: "Smooth espresso with steamed milk and light foam",
     imageUrl: null,
     isActive: true,
@@ -31,7 +31,7 @@ const sampleMenuItems = [
   {
     name: "Cold Brew",
     category: "coffee" as const,
-    price: "4.50",
+    price: "40.00",
     description: "Smooth, cold-brewed coffee served over ice",
     imageUrl: null,
     isActive: true,
@@ -39,7 +39,7 @@ const sampleMenuItems = [
   {
     name: "Green Tea",
     category: "coffee" as const,
-    price: "3.25",
+    price: "30.00",
     description: "Premium organic green tea, hot or iced",
     imageUrl: null,
     isActive: true,
@@ -49,7 +49,7 @@ const sampleMenuItems = [
   {
     name: "Avocado Toast",
     category: "food" as const,
-    price: "8.50",
+    price: "85.00",
     description: "Fresh avocado on sourdough with sea salt and lemon",
     imageUrl: null,
     isActive: true,

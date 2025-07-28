@@ -66,7 +66,7 @@ export function Cart({
             <div key={item.menuItemId} className="flex items-center justify-between">
               <div className="flex-1">
                 <h4 className="text-sm font-medium text-gray-800">{item.name}</h4>
-                <p className="text-xs text-gray-600">${item.price.toFixed(2)} each</p>
+                <p className="text-xs text-gray-600">{item.price.toFixed(2)} DH each</p>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -112,16 +112,16 @@ export function Cart({
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Subtotal:</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>{subtotal.toFixed(2)} DH</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Tax (8.5%):</span>
-            <span>${tax.toFixed(2)}</span>
+            <span>{tax.toFixed(2)} DH</span>
           </div>
           <Separator />
           <div className="flex justify-between font-semibold">
             <span>Total:</span>
-            <span className="text-cafe-brown">${total.toFixed(2)}</span>
+            <span className="text-cafe-brown">{total.toFixed(2)} DH</span>
           </div>
         </div>
 
@@ -137,7 +137,7 @@ export function Cart({
               Processing...
             </div>
           ) : (
-            `Place Order - $${total.toFixed(2)}`
+            `Place Order - ${total.toFixed(2)} DH`
           )}
         </Button>
 

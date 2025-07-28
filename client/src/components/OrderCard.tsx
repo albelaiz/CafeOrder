@@ -69,7 +69,7 @@ export function OrderCard({ order, onUpdateStatus }: OrderCardProps) {
             </div>
           </div>
           <div className="text-right">
-            <div className="font-bold text-cafe-brown">${order.total}</div>
+            <div className="font-bold text-cafe-brown">{order.total} DH</div>
             <div className="text-sm text-gray-600">{order.orderItems.length} items</div>
           </div>
         </div>

@@ -65,7 +65,7 @@ export function MenuItem({ item, onAddToCart }: MenuItemProps) {
             </p>
           )}
           <p className="text-xl font-bold text-cafe-brown">
-            ${parseFloat(item.price).toFixed(2)}
+            {parseFloat(item.price).toFixed(2)} DH
           </p>
         </div>
 

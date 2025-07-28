@@ -227,7 +227,10 @@ export default function Admin() {
                             <FormItem>
                               <FormLabel>Price</FormLabel>
                               <FormControl>
-                                <Input type="number" step="0.01" placeholder="0.00" {...field} />
+                                <div className="relative">
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} className="pr-12" />
+                                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">DH</span>
+                                </div>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -251,9 +254,21 @@ export default function Admin() {
                           name="imageUrl"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Image URL</FormLabel>
+                              <FormLabel>Item Image</FormLabel>
                               <FormControl>
-                                <Input placeholder="Enter image URL" {...field} value={field.value || ""} />
+                                <Input 
+                                  type="file" 
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      // For now, we'll use a placeholder URL
+                                      // In production, you'd upload to a file service
+                                      field.onChange(`/images/${file.name}`);
+                                    }
+                                  }}
+                                  className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -418,7 +433,7 @@ export default function Admin() {
                               {item.category}
                             </Badge>
                           </td>
-                          <td className="py-4 px-4 font-medium">${item.price}</td>
+                          <td className="py-4 px-4 font-medium">{item.price} DH</td>
                           <td className="py-4 px-4">
                             <Badge className={item.isActive ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>
                               {item.isActive ? "Active" : "Disabled"}
@@ -575,19 +590,19 @@ export default function Admin() {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Today's Revenue</span>
                     <span className="font-bold text-2xl text-cafe-brown">
-                      ${(stats?.revenue || 0).toFixed(2)}
+                      {(stats?.revenue || 0).toFixed(2)} DH
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">This Week</span>
                     <span className="font-bold text-lg text-gray-800">
-                      ${((stats?.revenue || 0) * 7).toFixed(2)}
+                      {((stats?.revenue || 0) * 7).toFixed(2)} DH
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">This Month</span>
                     <span className="font-bold text-lg text-gray-800">
-                      ${((stats?.revenue || 0) * 30).toFixed(2)}
+                      {((stats?.revenue || 0) * 30).toFixed(2)} DH
                     </span>
                   </div>
                   <div className="border-t pt-4">

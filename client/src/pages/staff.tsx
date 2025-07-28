@@ -186,7 +186,7 @@ export default function Staff() {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Revenue</span>
                     <span className="font-bold text-cafe-brown">
-                      ${(stats?.revenue || 0).toFixed(2)}
+                      {(stats?.revenue || 0).toFixed(2)} DH
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
