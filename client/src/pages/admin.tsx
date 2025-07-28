@@ -13,14 +13,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Download, Utensils, Receipt, BarChart, Users, Edit, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
+import { Plus, Download, Utensils, Receipt, BarChart, Users, Edit, ToggleLeft, ToggleRight, Trash2, Table } from "lucide-react";
 import type { MenuItem, OrderWithItems } from "@shared/schema";
 import { insertMenuItemSchema } from "@shared/schema";
 import { z } from "zod";
 
-const formSchema = insertMenuItemSchema.extend({
-  price: z.string().min(1, "Price is required").transform(val => parseFloat(val)),
-});
+const formSchema = insertMenuItemSchema.omit({ id: true, createdAt: true, updatedAt: true });
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("menu");
@@ -50,7 +48,7 @@ export default function Admin() {
     defaultValues: {
       name: "",
       description: "",
-      price: "0",
+      price: "",
       category: "coffee" as const,
       imageUrl: "",
       isActive: true,
@@ -87,6 +85,9 @@ export default function Admin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/menu"] });
+      editForm.reset();
+      setIsEditMenuOpen(false);
+      setEditingItem(null);
       toast({
         title: "Menu Item Updated",
         description: "The menu item has been updated successfully.",
@@ -133,6 +134,42 @@ export default function Admin() {
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     createMenuItemMutation.mutate(data);
+  };
+
+  // Edit menu item state and form
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [isEditMenuOpen, setIsEditMenuOpen] = useState(false);
+
+  const editForm = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      price: "",
+      category: "coffee",
+      imageUrl: "",
+    },
+  });
+
+  const onEditSubmit = (data: z.infer<typeof formSchema>) => {
+    if (editingItem) {
+      updateMenuItemMutation.mutate({
+        id: editingItem.id,
+        data,
+      });
+    }
+  };
+
+  const startEditItem = (item: MenuItem) => {
+    setEditingItem(item);
+    editForm.reset({
+      name: item.name,
+      description: item.description || "",
+      price: item.price,
+      category: item.category,
+      imageUrl: item.imageUrl || "",
+    });
+    setIsEditMenuOpen(true);
   };
 
   const toggleMenuItemStatus = (item: MenuItem) => {
@@ -295,6 +332,100 @@ export default function Admin() {
                     </Form>
                   </DialogContent>
                 </Dialog>
+
+                {/* Edit Menu Item Dialog */}
+                <Dialog open={isEditMenuOpen} onOpenChange={setIsEditMenuOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit Menu Item</DialogTitle>
+                    </DialogHeader>
+                    <Form {...editForm}>
+                      <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
+                        <FormField
+                          control={editForm.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Item Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Enter item name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={editForm.control}
+                          name="category"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Category</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select category" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="coffee">Coffee</SelectItem>
+                                  <SelectItem value="food">Food</SelectItem>
+                                  <SelectItem value="desserts">Desserts</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={editForm.control}
+                          name="price"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Price</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Input type="number" step="0.01" placeholder="0.00" {...field} className="pr-12" />
+                                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">DH</span>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={editForm.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Description</FormLabel>
+                              <FormControl>
+                                <Textarea placeholder="Enter item description" {...field} value={field.value || ""} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="flex justify-end space-x-2">
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => setIsEditMenuOpen(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            type="submit" 
+                            className="bg-cafe-accent hover:bg-orange-600"
+                            disabled={updateMenuItemMutation.isPending}
+                          >
+                            {updateMenuItemMutation.isPending ? "Updating..." : "Update Item"}
+                          </Button>
+                        </div>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+
                 <Button className="bg-cafe-brown hover:bg-cafe-light">
                   <Download className="w-4 h-4 mr-2" />
                   Export Data
@@ -342,6 +473,18 @@ export default function Admin() {
             >
               <BarChart className="w-4 h-4 mr-2" />
               Analytics
+            </Button>
+            <Button
+              variant="ghost"
+              className={`flex-1 py-4 px-6 rounded-none border-b-2 ${
+                activeTab === "tables"
+                  ? "border-cafe-brown text-cafe-brown"
+                  : "border-transparent text-gray-600 hover:text-cafe-brown"
+              }`}
+              onClick={() => setActiveTab("tables")}
+            >
+              <Table className="w-4 h-4 mr-2" />
+              Tables
             </Button>
           </div>
         </Card>
@@ -441,7 +584,12 @@ export default function Admin() {
                           </td>
                           <td className="py-4 px-4">
                             <div className="flex space-x-2">
-                              <Button size="sm" variant="ghost" className="p-2">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="p-2"
+                                onClick={() => startEditItem(item)}
+                              >
                                 <Edit className="w-4 h-4" />
                               </Button>
                               <Button
