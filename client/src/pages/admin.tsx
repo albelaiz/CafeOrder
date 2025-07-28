@@ -853,9 +853,14 @@ export default function Admin() {
                                     title: "Table Added",
                                     description: "New table has been created successfully.",
                                   });
-                                  // Clear the inputs
+                                  // Clear the inputs and close dialog
                                   numberInput.value = '';
                                   capacityInput.value = '';
+                                  const dialog = numberInput.closest('[role="dialog"]');
+                                  if (dialog) {
+                                    const closeBtn = dialog.querySelector('[aria-label="Close"]') as HTMLElement;
+                                    closeBtn?.click();
+                                  }
                                 } else {
                                   throw new Error(await response.text());
                                 }

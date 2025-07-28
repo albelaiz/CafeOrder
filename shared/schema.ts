@@ -56,7 +56,7 @@ export const menuItems = pgTable("menu_items", {
 
 // Tables in the café
 export const tables = pgTable("tables", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   number: integer("number").notNull().unique(),
   status: varchar("status").notNull().default("available"), // available, occupied, reserved, out_of_order
   capacity: integer("capacity").default(4).notNull(),
@@ -148,6 +148,8 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
 });
 
 export const insertTableSchema = createInsertSchema(tables).omit({
+  id: true,
+  createdAt: true,
   updatedAt: true,
 });
 

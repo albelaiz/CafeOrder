@@ -222,8 +222,10 @@ export function registerRoutes(app: Express): Server {
 
       const { number, capacity } = req.body;
       
-      // Generate proper QR code URL
-      const baseUrl = process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : 'http://localhost:5000';
+      // Generate proper QR code URL - get current domain from request
+      const protocol = req.secure ? 'https' : 'http';
+      const host = req.get('host');
+      const baseUrl = `${protocol}://${host}`;
       const qrCode = `${baseUrl}/order?t=${number}`;
       
       const tableData = {
