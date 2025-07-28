@@ -27,12 +27,12 @@ export default function Home() {
             <Coffee className="w-16 h-16" />
           </div>
           <h1 className="text-5xl font-bold mb-4">Welcome to Café Direct</h1>
-          <p className="text-xl opacity-90 mb-8">
+          <p className="text-xl opacity-90 mb-8 text-black">
             Order directly from your table - No waiting, no signup required!
           </p>
           
           {/* Quick Order Section */}
-          <div className="bg-white/20 rounded-xl p-6 max-w-md mx-auto">
+          <div className="text-lg font-semibold mb-4 text-black">
             <h3 className="text-lg font-semibold mb-4">Start Your Order</h3>
             <div className="flex space-x-3">
               <Input
