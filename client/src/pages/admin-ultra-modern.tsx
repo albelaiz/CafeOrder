@@ -24,6 +24,11 @@ import { insertMenuItemSchema } from "@shared/schema";
 import { z } from "zod";
 
 const formSchema = insertMenuItemSchema.omit({ id: true, createdAt: true, updatedAt: true });
+const tableFormSchema = z.object({
+  number: z.number().min(1, "Table number must be at least 1"),
+  capacity: z.number().min(1, "Capacity must be at least 1"),
+  status: z.string().default("available"),
+});
 
 export default function AdminUltraModern() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -64,9 +69,18 @@ export default function AdminUltraModern() {
       name: "",
       description: "",
       price: "",
-      category: "coffee" as const,
+      category: "coffee",
       imageUrl: "",
       isActive: true,
+    },
+  });
+
+  const tableForm = useForm<z.infer<typeof tableFormSchema>>({
+    resolver: zodResolver(tableFormSchema),
+    defaultValues: {
+      number: 0,
+      capacity: 4,
+      status: "available",
     },
   });
 
@@ -114,13 +128,26 @@ export default function AdminUltraModern() {
   });
 
   const createTableMutation = useMutation({
-    mutationFn: async (data: { number: number; capacity: number }) => {
+    mutationFn: async (data: z.infer<typeof tableFormSchema>) => {
       const response = await apiRequest("POST", "/api/tables", data);
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/analytics/stats"] });
+      toast({
+        title: "Table created successfully",
+        description: "New table added to your café",
+      });
       setIsAddTableOpen(false);
+      tableForm.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to create table",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
     },
   });
 
@@ -140,6 +167,10 @@ export default function AdminUltraModern() {
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     createMenuItemMutation.mutate(data);
+  };
+
+  const onTableSubmit = (data: z.infer<typeof tableFormSchema>) => {
+    createTableMutation.mutate(data);
   };
 
   const generateQRCode = (qrCodeUrl: string) => {
@@ -233,6 +264,71 @@ export default function AdminUltraModern() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === "overview" && (
+          <div className="space-y-8">
+            {/* Quick Table Access */}
+            <Card className="card-modern">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Table className="w-5 h-5 text-blue-600" />
+                  <span>Quick Table Access</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {tablesLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : tables.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 mb-4">No tables created yet</p>
+                    <Button
+                      onClick={() => setActiveTab("tables")}
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Your First Table
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    {tables.slice().sort((a, b) => b.id - a.id).map((table) => (
+                      <div key={table.id} className="group">
+                        <Button
+                          variant="outline"
+                          className="w-full h-20 flex flex-col items-center justify-center space-y-1 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                          onClick={() => {
+                            // Filter orders for this table
+                            setActiveTab("orders");
+                          }}
+                        >
+                          <MapPin className="w-5 h-5 text-gray-600 group-hover:text-blue-600" />
+                          <span className="font-semibold">Table {table.number}</span>
+                          <span className="text-xs text-gray-500">{table.capacity} seats</span>
+                        </Button>
+                        <div className="mt-2 text-center">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-xs text-blue-600 hover:text-blue-700"
+                            onClick={() => {
+                              const tableOrders = orders.filter(order => order.tableNumber === table.number);
+                              // Could implement a modal or filter for table-specific orders
+                            }}
+                          >
+                            <Eye className="w-3 h-3 mr-1" />
+                            View Orders
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === "overview-stats" && (
           <div className="space-y-8">
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -580,98 +676,186 @@ export default function AdminUltraModern() {
                   <DialogHeader>
                     <DialogTitle>Create New Table</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Table Number
-                      </label>
-                      <Input 
-                        id="tableNumber" 
-                        type="number" 
-                        placeholder="5" 
+                  <Form {...tableForm}>
+                    <form onSubmit={tableForm.handleSubmit(onTableSubmit)} className="space-y-4">
+                      <FormField
+                        control={tableForm.control}
+                        name="number"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Table Number</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                placeholder="5" 
+                                {...field} 
+                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Capacity
-                      </label>
-                      <Input 
-                        id="tableCapacity" 
-                        type="number" 
-                        placeholder="4" 
-                        defaultValue="4"
+                      <FormField
+                        control={tableForm.control}
+                        name="capacity"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Capacity</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                placeholder="4" 
+                                {...field} 
+                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                    <Button 
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                      onClick={() => {
-                        const numberInput = document.getElementById("tableNumber") as HTMLInputElement;
-                        const capacityInput = document.getElementById("tableCapacity") as HTMLInputElement;
-                        
-                        if (numberInput?.value && capacityInput?.value) {
-                          createTableMutation.mutate({
-                            number: parseInt(numberInput.value),
-                            capacity: parseInt(capacityInput.value)
-                          });
-                        }
-                      }}
-                    >
-                      Create Table
-                    </Button>
-                  </div>
+                      <Button 
+                        type="submit"
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                        disabled={createTableMutation.isPending}
+                      >
+                        {createTableMutation.isPending ? "Creating..." : "Create Table"}
+                      </Button>
+                    </form>
+                  </Form>
                 </DialogContent>
               </Dialog>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tables.map((table) => (
-                <Card key={table.id} className="card-modern overflow-hidden">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900">Table {table.number}</h3>
-                        <p className="text-sm text-gray-500">Capacity: {table.capacity} guests</p>
-                      </div>
-                      <Badge 
-                        variant={table.status === "available" ? "default" : "secondary"}
-                        className={table.status === "available" ? "bg-green-100 text-green-800" : ""}
-                      >
-                        {table.status}
-                      </Badge>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      <div className="flex justify-center">
-                        <div className="p-4 bg-white border-2 border-gray-200 rounded-xl">
-                          <img
-                            src={generateQRCode(table.qrCode)}
-                            alt={`QR Code for Table ${table.number}`}
-                            className="w-32 h-32"
-                          />
+            {tablesLoading ? (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 animate-pulse mx-auto">
+                  <Table className="w-8 h-8 text-white" />
+                </div>
+                <p className="text-gray-600 text-lg">Loading tables...</p>
+              </div>
+            ) : tables.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <Table className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No tables yet</h3>
+                <p className="text-gray-500 mb-4">Create your first table to start managing customer orders</p>
+                <Button
+                  onClick={() => setIsAddTableOpen(true)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create First Table
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {tables.map((table) => {
+                  const tableOrders = orders.filter(order => order.tableNumber === table.number);
+                  const activeTableOrders = tableOrders.filter(order => !["completed", "cancelled"].includes(order.status));
+                  
+                  return (
+                    <Card key={table.id} className="card-modern overflow-hidden group">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
+                              {table.number}
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-semibold text-gray-900">Table {table.number}</h3>
+                              <p className="text-sm text-gray-500">{table.capacity} guests capacity</p>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end space-y-2">
+                            <Badge 
+                              variant={table.status === "available" ? "default" : "secondary"}
+                              className={table.status === "available" ? "bg-green-100 text-green-800" : ""}
+                            >
+                              {table.status}
+                            </Badge>
+                            {activeTableOrders.length > 0 && (
+                              <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                                {activeTableOrders.length} active orders
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="text-center">
-                        <p className="text-xs text-gray-500 mb-2">QR Code URL:</p>
-                        <p className="text-xs text-gray-700 break-all bg-gray-50 p-3 rounded-lg font-mono">
-                          {table.qrCode}
-                        </p>
-                      </div>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => deleteTableMutation.mutate(table.id)}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete Table
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                        
+                        <div className="space-y-4">
+                          {/* QR Code */}
+                          <div className="flex justify-center">
+                            <div className="p-3 bg-white border-2 border-gray-200 rounded-xl shadow-sm">
+                              <img
+                                src={generateQRCode(table.qrCode)}
+                                alt={`QR Code for Table ${table.number}`}
+                                className="w-24 h-24"
+                              />
+                            </div>
+                          </div>
+                          
+                          {/* Table Stats */}
+                          <div className="grid grid-cols-2 gap-3 text-center">
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <p className="text-xs text-gray-500">Total Orders</p>
+                              <p className="text-lg font-bold text-gray-900">{tableOrders.length}</p>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3">
+                              <p className="text-xs text-gray-500">Active</p>
+                              <p className="text-lg font-bold text-gray-900">{activeTableOrders.length}</p>
+                            </div>
+                          </div>
+                          
+                          {/* QR Code URL */}
+                          <div className="text-center">
+                            <p className="text-xs text-gray-500 mb-2">QR Code URL:</p>
+                            <p className="text-xs text-gray-700 break-all bg-gray-50 p-2 rounded-lg font-mono">
+                              {table.qrCode}
+                            </p>
+                          </div>
+                          
+                          {/* Action Buttons */}
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              onClick={() => {
+                                // Open orders filtered by this table
+                                setActiveTab("orders");
+                              }}
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View Orders
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => {
+                                if (activeTableOrders.length > 0) {
+                                  toast({
+                                    title: "Cannot delete table",
+                                    description: "This table has active orders. Complete them first.",
+                                    variant: "destructive",
+                                  });
+                                } else {
+                                  deleteTableMutation.mutate(table.id);
+                                }
+                              }}
+                              disabled={activeTableOrders.length > 0}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>

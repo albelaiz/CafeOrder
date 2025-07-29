@@ -149,8 +149,11 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
 
 export const insertTableSchema = createInsertSchema(tables).omit({
   id: true,
+  qrCode: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  status: z.string().default("available"),
 });
 
 // Types
