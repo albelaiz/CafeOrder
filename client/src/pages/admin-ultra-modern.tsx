@@ -1,0 +1,680 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { 
+  Plus, Download, Utensils, Receipt, BarChart, Users, Edit, 
+  ToggleLeft, ToggleRight, Trash2, Table, DollarSign, 
+  Clock, CheckCircle, TrendingUp, Coffee, QrCode,
+  Calendar, Activity, PieChart, BarChart3, Target,
+  Zap, Star, MapPin, Eye, Settings
+} from "lucide-react";
+import type { MenuItem, OrderWithItems } from "@shared/schema";
+import { insertMenuItemSchema } from "@shared/schema";
+import { z } from "zod";
+
+const formSchema = insertMenuItemSchema.omit({ id: true, createdAt: true, updatedAt: true });
+
+export default function AdminUltraModern() {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
+  const [isAddTableOpen, setIsAddTableOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: menuItems = [], isLoading: menuLoading } = useQuery<MenuItem[]>({
+    queryKey: ["/api/menu"],
+  });
+
+  const { data: orders = [], isLoading: ordersLoading } = useQuery<OrderWithItems[]>({
+    queryKey: ["/api/orders"],
+  });
+
+  const { data: tables = [], isLoading: tablesLoading } = useQuery<any[]>({
+    queryKey: ["/api/tables"],
+  });
+
+  const { data: stats } = useQuery<{
+    totalOrders: number;
+    pendingOrders: number;
+    completedOrders: number;
+    totalRevenue: number;
+    ordersToday: number;
+    ordersThisWeek: number;
+    ordersThisMonth: number;
+    mostOrderedItems: Array<{ name: string; count: number; category: string }>;
+    activeTables: number;
+  }>({
+    queryKey: ["/api/analytics/stats"],
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      price: "",
+      category: "coffee" as const,
+      imageUrl: "",
+      isActive: true,
+    },
+  });
+
+  const createMenuItemMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof formSchema>) => {
+      const response = await apiRequest("POST", "/api/menu", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/menu"] });
+      toast({
+        title: "Menu item created",
+        description: "Successfully added to your menu",
+      });
+      setIsAddMenuOpen(false);
+      form.reset();
+    },
+  });
+
+  const updateMenuItemMutation = useMutation({
+    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
+      const response = await apiRequest("PUT", `/api/menu/${id}`, { isActive: active });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/menu"] });
+    },
+  });
+
+  const deleteMenuItemMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest("DELETE", `/api/menu/${id}`);
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/menu"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Cannot delete item",
+        description: error.message || "This item has orders and cannot be deleted.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const createTableMutation = useMutation({
+    mutationFn: async (data: { number: number; capacity: number }) => {
+      const response = await apiRequest("POST", "/api/tables", data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+      setIsAddTableOpen(false);
+    },
+  });
+
+  const deleteTableMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/tables/${id}`);
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+    },
+  });
+
+  const handleExportExcel = () => {
+    window.open('/api/export/excel', '_blank');
+  };
+
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    createMenuItemMutation.mutate(data);
+  };
+
+  const generateQRCode = (qrCodeUrl: string) => {
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCodeUrl)}`;
+  };
+
+  const getStatusBadge = (status: string) => {
+    const styles = {
+      pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      preparing: "bg-blue-100 text-blue-800 border-blue-200", 
+      ready: "bg-green-100 text-green-800 border-green-200",
+      completed: "bg-gray-100 text-gray-800 border-gray-200"
+    };
+    return styles[status as keyof typeof styles] || styles.pending;
+  };
+
+  const StatCard = ({ icon: Icon, title, value, change, color }: any) => (
+    <Card className="card-modern overflow-hidden">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
+            <p className="text-3xl font-bold text-gray-900">{value}</p>
+            {change && (
+              <p className="text-sm text-green-600 mt-1">
+                ↗ {change} from last month
+              </p>
+            )}
+          </div>
+          <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center`}>
+            <Icon className="w-6 h-6 text-white" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Ultra Modern Header */}
+      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <Coffee className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Café Direct</h1>
+                <p className="text-sm text-gray-500">Administrative Dashboard</p>
+              </div>
+            </div>
+            <Button 
+              onClick={handleExportExcel}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium px-6"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export Data
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modern Navigation */}
+      <div className="bg-white/60 backdrop-blur-sm border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6">
+          <nav className="flex space-x-8">
+            {[
+              { id: "overview", label: "Overview", icon: BarChart3 },
+              { id: "menu", label: "Menu", icon: Utensils },
+              { id: "orders", label: "Orders", icon: Receipt },
+              { id: "tables", label: "Tables", icon: Table },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {activeTab === "overview" && (
+          <div className="space-y-8">
+            {/* Key Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <StatCard
+                icon={DollarSign}
+                title="Total Revenue"
+                value={`$${stats?.totalRevenue?.toFixed(2) || "0.00"}`}
+                change="+12%"
+                color="bg-gradient-to-r from-green-500 to-emerald-600"
+              />
+              <StatCard
+                icon={TrendingUp}
+                title="Orders Today"
+                value={stats?.ordersToday || 0}
+                change="+8%"
+                color="bg-gradient-to-r from-blue-500 to-indigo-600"
+              />
+              <StatCard
+                icon={Clock}
+                title="Pending Orders"
+                value={stats?.pendingOrders || 0}
+                color="bg-gradient-to-r from-orange-500 to-red-500"
+              />
+              <StatCard
+                icon={Table}
+                title="Active Tables"
+                value={stats?.activeTables || 0}
+                color="bg-gradient-to-r from-purple-500 to-pink-500"
+              />
+            </div>
+
+            {/* Analytics Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Orders Timeline */}
+              <Card className="card-modern">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Activity className="w-5 h-5 text-blue-600" />
+                    <span>Order Activity</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {[
+                    { label: "Today", value: stats?.ordersToday || 0, color: "bg-blue-500" },
+                    { label: "This Week", value: stats?.ordersThisWeek || 0, color: "bg-green-500" },
+                    { label: "This Month", value: stats?.ordersThisMonth || 0, color: "bg-purple-500" },
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-3 h-3 ${item.color} rounded-full`}></div>
+                        <span className="font-medium text-gray-700">{item.label}</span>
+                      </div>
+                      <span className="text-xl font-bold text-gray-900">{item.value}</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Popular Items */}
+              <Card className="card-modern">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Star className="w-5 h-5 text-yellow-500" />
+                    <span>Popular Items</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {stats?.mostOrderedItems?.slice(0, 5).map((item, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-pink-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-900">{item.name}</span>
+                            <Badge variant="secondary" className="ml-2 text-xs">
+                              {item.category}
+                            </Badge>
+                          </div>
+                        </div>
+                        <span className="text-sm font-semibold text-gray-600">{item.count} orders</span>
+                      </div>
+                    )) || (
+                      <p className="text-gray-500 text-center py-8">No order data available</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "menu" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Menu Management</h2>
+                <p className="text-gray-600 mt-1">Manage your café's menu items and categories</p>
+              </div>
+              <Dialog open={isAddMenuOpen} onOpenChange={setIsAddMenuOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium px-6">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Item
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Create Menu Item</DialogTitle>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Item Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Cappuccino" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Rich espresso with steamed milk..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="price"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Price</FormLabel>
+                              <FormControl>
+                                <Input placeholder="4.50" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="category"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Category</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="coffee">Coffee</SelectItem>
+                                  <SelectItem value="food">Food</SelectItem>
+                                  <SelectItem value="desserts">Desserts</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                        disabled={createMenuItemMutation.isPending}
+                      >
+                        {createMenuItemMutation.isPending ? "Creating..." : "Create Item"}
+                      </Button>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {menuItems.map((item) => (
+                <Card key={item.id} className="card-modern overflow-hidden group">
+                  <CardContent className="p-0">
+                    <div className="h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <Coffee className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
+                          <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
+                        </div>
+                        <Badge 
+                          variant={item.isActive ? "default" : "secondary"}
+                          className={item.isActive ? "bg-green-100 text-green-800" : ""}
+                        >
+                          {item.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex justify-between items-center mb-4">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xl font-bold text-gray-900">${item.price}</span>
+                          <Badge variant="outline" className="capitalize text-xs">
+                            {item.category}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateMenuItemMutation.mutate({ 
+                            id: item.id, 
+                            active: !item.isActive 
+                          })}
+                          className="flex-1"
+                        >
+                          {item.isActive ? (
+                            <ToggleRight className="w-4 h-4" />
+                          ) : (
+                            <ToggleLeft className="w-4 h-4" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => deleteMenuItemMutation.mutate(item.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "orders" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Order Management</h2>
+              <p className="text-gray-600 mt-1">Monitor and manage customer orders</p>
+            </div>
+            
+            <div className="grid gap-6">
+              {orders.map((order) => (
+                <Card key={order.id} className="card-modern">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
+                          #{order.orderNumber.slice(-3)}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">
+                            Order #{order.orderNumber}
+                          </h3>
+                          <div className="flex items-center space-x-2 text-sm text-gray-500">
+                            <MapPin className="w-4 h-4" />
+                            <span>Table {order.tableNumber}</span>
+                            <span>•</span>
+                            <span>{order.createdAt ? new Date(order.createdAt).toLocaleTimeString() : ""}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <Badge className={`${getStatusBadge(order.status)} border font-medium px-3 py-1`}>
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-3">Order Items</h4>
+                        <div className="space-y-2">
+                          {order.orderItems.map((item) => (
+                            <div key={item.id} className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                              <div>
+                                <span className="font-medium text-sm">{item.menuItem.name}</span>
+                                <Badge variant="secondary" className="ml-2 text-xs">
+                                  {item.menuItem.category}
+                                </Badge>
+                              </div>
+                              <div className="text-right">
+                                <span className="text-sm font-medium">×{item.quantity}</span>
+                                <div className="text-xs text-gray-500">${item.totalPrice}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col justify-between">
+                        <div className="text-right">
+                          <p className="text-sm text-gray-500 mb-1">Total Amount</p>
+                          <p className="text-2xl font-bold text-gray-900">${order.total}</p>
+                        </div>
+                        
+                        {order.notes && (
+                          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p className="text-sm text-blue-800">
+                              <strong>Notes:</strong> {order.notes}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "tables" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Table Management</h2>
+                <p className="text-gray-600 mt-1">Manage café tables and QR codes</p>
+              </div>
+              <Dialog open={isAddTableOpen} onOpenChange={setIsAddTableOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium px-6">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Table
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create New Table</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Table Number
+                      </label>
+                      <Input 
+                        id="tableNumber" 
+                        type="number" 
+                        placeholder="5" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Capacity
+                      </label>
+                      <Input 
+                        id="tableCapacity" 
+                        type="number" 
+                        placeholder="4" 
+                        defaultValue="4"
+                      />
+                    </div>
+                    <Button 
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                      onClick={() => {
+                        const numberInput = document.getElementById("tableNumber") as HTMLInputElement;
+                        const capacityInput = document.getElementById("tableCapacity") as HTMLInputElement;
+                        
+                        if (numberInput?.value && capacityInput?.value) {
+                          createTableMutation.mutate({
+                            number: parseInt(numberInput.value),
+                            capacity: parseInt(capacityInput.value)
+                          });
+                        }
+                      }}
+                    >
+                      Create Table
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tables.map((table) => (
+                <Card key={table.id} className="card-modern overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-900">Table {table.number}</h3>
+                        <p className="text-sm text-gray-500">Capacity: {table.capacity} guests</p>
+                      </div>
+                      <Badge 
+                        variant={table.status === "available" ? "default" : "secondary"}
+                        className={table.status === "available" ? "bg-green-100 text-green-800" : ""}
+                      >
+                        {table.status}
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-center">
+                        <div className="p-4 bg-white border-2 border-gray-200 rounded-xl">
+                          <img
+                            src={generateQRCode(table.qrCode)}
+                            alt={`QR Code for Table ${table.number}`}
+                            className="w-32 h-32"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500 mb-2">QR Code URL:</p>
+                        <p className="text-xs text-gray-700 break-all bg-gray-50 p-3 rounded-lg font-mono">
+                          {table.qrCode}
+                        </p>
+                      </div>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => deleteTableMutation.mutate(table.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete Table
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

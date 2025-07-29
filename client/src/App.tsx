@@ -6,11 +6,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigation } from "@/components/Navigation";
 import { useState } from "react";
-import Home from "@/pages/home";
-import OrderNew from "@/pages/order-new";
+import HomeModern from "@/pages/home-modern";
+import OrderModern from "@/pages/order-modern";
 import ThankYouNew from "@/pages/thank-you-new";
-import StaffNew from "@/pages/staff-new";
-import AdminNew from "@/pages/admin-new";
+import StaffUltraModern from "@/pages/staff-ultra-modern";
+import AdminUltraModern from "@/pages/admin-ultra-modern";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
@@ -18,8 +18,8 @@ function Router() {
   return (
     <Switch>
       {/* Public routes - no authentication required */}
-      <Route path="/" component={Home} />
-      <Route path="/order" component={OrderNew} />
+      <Route path="/" component={HomeModern} />
+      <Route path="/order" component={OrderModern} />
       <Route path="/thank-you" component={ThankYouNew} />
       
       {/* Login route for staff/admin */}
@@ -63,7 +63,7 @@ function AuthenticatedStaff() {
     );
   }
 
-  return <StaffNew />;
+  return <StaffUltraModern />;
 }
 
 function AuthenticatedAdmin() {
@@ -96,7 +96,7 @@ function AuthenticatedAdmin() {
   }
 
   return (
-      <AdminNew />
+      <AdminUltraModern />
   );
 }
 
