@@ -1,0 +1,83 @@
+🔧 Please fix all the following issues and improve the overall functionality and design of the café ordering website:
+
+---
+
+### 🔐 1. Fix Admin Login Errors
+- Currently getting `401: { "message": "invalid credentials" }` even with correct credentials.
+- Ensure login API checks against real database data (not hardcoded).
+- Hash passwords using bcrypt (or similar), and verify them securely.
+- Show clear error messages on the frontend when login fails.
+- On successful login, store a JWT/session and redirect to the dashboard.
+- Protect dashboard routes from unauthorized users.
+
+---
+
+### 🧾 2. Fix Delete & Edit Menu Item Errors
+- When the admin tries to delete a menu item, it fails with:
+  `Error: failed to delete menu item`
+- When trying to edit a menu item, it shows:
+  `Error: failed to update menu item`
+- Fix these errors in both frontend and backend.
+- Ensure API routes handle DELETE and PUT/PATCH requests correctly.
+- Return proper success or error messages from the backend.
+- Make sure the database is updating or deleting the item as expected.
+
+---
+
+### 📥 3. Export Data to Excel (Not JSON)
+- Add functionality in the Admin Dashboard to **export all orders and menu items as an Excel file (`.xlsx`)**.
+- Use a Node.js library like `exceljs` or `xlsx` to generate the file.
+- Add a "Download as Excel" button.
+- The exported file should include:
+  - For orders: Table, items, time, status
+  - For menu: name, price, category, availability
+
+---
+
+### 📊 4. Real Analytics (Not Fake Data)
+- Replace fake data on the admin dashboard with real analytics from the database.
+- Show:
+  - Total orders today / this week / this month
+  - Most ordered items
+  - Number of active tables
+  - Income summary (if price is stored)
+- Use charts (e.g., bar or pie) for a clean visual dashboard.
+- Optionally use chart libraries like Chart.js or Recharts.
+
+---
+
+### 🪑 5. Fix Table Display on Customer Home Page
+- When the admin adds a new table, it should **appear immediately at the top of the home page** (not bottom).
+- Sort tables by newest first or allow admin to reorder tables.
+- Tables should be clickable or display their number cleanly.
+
+---
+
+### 🛑 6. Remove Placeholder Text
+- Remove this text from the customer homepage:
+  `"Welcome to Café Direct"`
+- Replace it with a meaningful section or just remove it entirely.
+
+---
+
+### 🎨 7. Redesign the Entire UI (Professional Look)
+The current design is not good. Please redesign the full site with a modern and clean look:
+
+- Use **Tailwind CSS** or **ShadCN UI**
+- Mobile-friendly design for customers 
+- Add clean typography, spacing, and soft UI animations
+- Use modern components: cards, modals, buttons, sidebar navigation
+- Admin and staff dashboards should look like a professional SaaS tool
+- Customer menu should have:
+  - Category filters
+  - Images for items
+  - Smooth scroll / animations
+  - "Add to cart" buttons with feedback
+- Add a loading spinner and success confirmation when placing an order
+
+---
+
+🎯 Goal:
+Fix all functional errors, improve database integration, replace fake data with real analytics, support Excel export, and completely redesign the website UI to make it look modern and clean on both desktop and mobile.
+
+Make it production-ready and café-friendly.

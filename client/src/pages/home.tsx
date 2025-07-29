@@ -26,7 +26,7 @@ export default function Home() {
           <div className="flex justify-center mb-6">
             <Coffee className="w-16 h-16" />
           </div>
-          <h1 className="text-5xl font-bold mb-4">Welcome to Café Direct</h1>
+          <h1 className="text-5xl font-bold mb-4">Café Direct</h1>
           <p className="text-xl opacity-90 mb-8 text-black">
             Order directly from your table - No waiting, no signup required!
           </p>

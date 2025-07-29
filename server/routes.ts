@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./auth";
 import { insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema, insertTableSchema } from "@shared/schema";
 import { z } from "zod";
+import ExcelJS from "exceljs";
 
 const orderCreationSchema = z.object({
   order: insertOrderSchema,
@@ -287,6 +288,84 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error("Error fetching stats:", error);
       res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
+  // Excel export route (admin only)
+  app.get("/api/export/excel", isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.user.role !== "admin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const workbook = new ExcelJS.Workbook();
+      
+      // Orders sheet
+      const ordersSheet = workbook.addWorksheet("Orders");
+      ordersSheet.columns = [
+        { header: "Order Number", key: "orderNumber", width: 15 },
+        { header: "Table Number", key: "tableNumber", width: 12 },
+        { header: "Status", key: "status", width: 12 },
+        { header: "Items", key: "items", width: 40 },
+        { header: "Subtotal", key: "subtotal", width: 12 },
+        { header: "Tax", key: "tax", width: 10 },
+        { header: "Total", key: "total", width: 12 },
+        { header: "Order Time", key: "createdAt", width: 20 },
+        { header: "Notes", key: "notes", width: 30 },
+      ];
+
+      const orders = await storage.getOrders();
+      orders.forEach(order => {
+        const items = order.orderItems.map(item => 
+          `${item.menuItem.name} x${item.quantity} ($${item.unitPrice})`
+        ).join("; ");
+        
+        ordersSheet.addRow({
+          orderNumber: order.orderNumber,
+          tableNumber: order.tableNumber,
+          status: order.status,
+          items,
+          subtotal: `$${order.subtotal}`,
+          tax: `$${order.tax}`,
+          total: `$${order.total}`,
+          createdAt: order.createdAt?.toLocaleString() || "",
+          notes: order.notes || "",
+        });
+      });
+
+      // Menu items sheet
+      const menuSheet = workbook.addWorksheet("Menu Items");
+      menuSheet.columns = [
+        { header: "Name", key: "name", width: 25 },
+        { header: "Description", key: "description", width: 40 },
+        { header: "Price", key: "price", width: 12 },
+        { header: "Category", key: "category", width: 15 },
+        { header: "Active", key: "isActive", width: 10 },
+        { header: "Created At", key: "createdAt", width: 20 },
+      ];
+
+      const menuItems = await storage.getMenuItems();
+      menuItems.forEach(item => {
+        menuSheet.addRow({
+          name: item.name,
+          description: item.description || "",
+          price: `$${item.price}`,
+          category: item.category,
+          isActive: item.isActive ? "Yes" : "No",
+          createdAt: item.createdAt?.toLocaleString() || "",
+        });
+      });
+
+      // Set headers for file download
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename=cafe-direct-data-${new Date().toISOString().split('T')[0]}.xlsx`);
+
+      // Write to response
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (error) {
+      console.error("Error generating Excel export:", error);
+      res.status(500).json({ message: "Failed to generate Excel export" });
     }
   });
 

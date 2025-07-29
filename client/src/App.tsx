@@ -7,10 +7,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigation } from "@/components/Navigation";
 import { useState } from "react";
 import Home from "@/pages/home";
-import Order from "@/pages/order";
-import ThankYou from "@/pages/thank-you";
-import Staff from "@/pages/staff";
-import Admin from "@/pages/admin";
+import OrderNew from "@/pages/order-new";
+import ThankYouNew from "@/pages/thank-you-new";
+import StaffNew from "@/pages/staff-new";
+import AdminNew from "@/pages/admin-new";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
@@ -19,8 +19,8 @@ function Router() {
     <Switch>
       {/* Public routes - no authentication required */}
       <Route path="/" component={Home} />
-      <Route path="/order" component={Order} />
-      <Route path="/thank-you" component={ThankYou} />
+      <Route path="/order" component={OrderNew} />
+      <Route path="/thank-you" component={ThankYouNew} />
       
       {/* Login route for staff/admin */}
       <Route path="/login" component={Login} />
@@ -63,12 +63,7 @@ function AuthenticatedStaff() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-cafe-bg">
-      <Navigation currentView="staff" onViewChange={() => {}} />
-      <Staff />
-    </div>
-  );
+  return <StaffNew />;
 }
 
 function AuthenticatedAdmin() {
@@ -101,10 +96,7 @@ function AuthenticatedAdmin() {
   }
 
   return (
-    <div className="min-h-screen bg-cafe-bg">
-      <Navigation currentView="admin" onViewChange={() => {}} />
-      <Admin />
-    </div>
+      <AdminNew />
   );
 }
 
