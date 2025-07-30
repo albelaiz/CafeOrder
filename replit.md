@@ -125,5 +125,24 @@ The application is designed for deployment on Replit with the following build pr
 ✓ **Mobile-First Design**: Responsive design optimized for customer mobile experience
 ✓ **Authentication Fixes**: Resolved login credential validation and session management issues
 ✓ **Menu Item Management**: Fixed delete/edit functionality with proper foreign key handling
+✓ **Fly.io Deployment Ready**: Added Dockerfile, fly.toml, and deployment configuration for production hosting
+
+## Deployment Configuration
+
+The application is now prepared for deployment on both Replit and Fly.io:
+
+### Replit Environment
+- Optimized for development with Vite dev server and hot module replacement
+- PostgreSQL database integration via environment variables
+- Session-based authentication with Replit Auth
+- Real-time WebSocket support for order updates
+
+### Fly.io Production Deployment
+- **Docker Configuration**: Multi-stage build with Node.js 18-slim base image
+- **Port Configuration**: Runs on port 8080 in production, 5000 in development
+- **Health Checks**: `/api/health` endpoint for Fly.io monitoring
+- **Static Assets**: Frontend build served from `/dist/public`
+- **Environment Variables**: `DATABASE_URL`, `SESSION_SECRET`, `NODE_ENV`, `PORT`
+- **Security**: `.dockerignore` protects sensitive files from container build
 
 The application uses a monorepo structure with shared TypeScript types and utilities, enabling code reuse between client and server while maintaining clear boundaries.
