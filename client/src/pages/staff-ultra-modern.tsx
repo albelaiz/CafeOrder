@@ -21,7 +21,6 @@ export default function StaffUltraModern() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { logoutMutation } = useAuth();
-  const { logoutMutation } = useAuth();
 
   const { data: orders = [], isLoading } = useQuery<OrderWithItems[]>({
     queryKey: ["/api/orders"],
