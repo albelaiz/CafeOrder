@@ -223,13 +223,27 @@ export default function AdminUltraModern() {
                 <p className="text-sm text-gray-500">Administrative Dashboard</p>
               </div>
             </div>
-            <Button 
-              onClick={handleExportExcel}
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium px-6"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export Data
-            </Button>
+            <div className="flex items-center space-x-4">
+              <Button 
+                onClick={handleExportExcel}
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium px-6"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export Data
+              </Button>
+              <Button
+                variant="destructive"
+                size="lg"
+                className="text-lg px-8 py-3 font-bold shadow-lg border-2 border-red-600 hover:bg-red-700 transition-colors duration-200"
+                onClick={() => {
+                  localStorage.clear();
+                  queryClient.setQueryData(["/api/auth/user"], null);
+                  window.location.href = "/login";
+                }}
+              >
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </div>
