@@ -265,66 +265,7 @@ export default function AdminUltraModern() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === "overview" && (
           <div className="space-y-8">
-            {/* Quick Table Access */}
-            <Card className="card-modern">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Table className="w-5 h-5 text-blue-600" />
-                  <span>Quick Table Access</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {tablesLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  </div>
-                ) : tables.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500 mb-4">No tables created yet</p>
-                    <Button
-                      onClick={() => setActiveTab("tables")}
-                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Your First Table
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {tables.slice().sort((a, b) => b.id - a.id).map((table) => (
-                      <div key={table.id} className="group">
-                        <Button
-                          variant="outline"
-                          className="w-full h-20 flex flex-col items-center justify-center space-y-1 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
-                          onClick={() => {
-                            // Filter orders for this table
-                            setActiveTab("orders");
-                          }}
-                        >
-                          <MapPin className="w-5 h-5 text-gray-600 group-hover:text-blue-600" />
-                          <span className="font-semibold">Table {table.number}</span>
-                          <span className="text-xs text-gray-500">{table.capacity} seats</span>
-                        </Button>
-                        <div className="mt-2 text-center">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-xs text-blue-600 hover:text-blue-700"
-                            onClick={() => {
-                              const tableOrders = orders.filter(order => order.tableNumber === table.number);
-                              // Could implement a modal or filter for table-specific orders
-                            }}
-                          >
-                            <Eye className="w-3 h-3 mr-1" />
-                            View Orders
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {/* Overview content can be added here */}
           </div>
         )}
 
