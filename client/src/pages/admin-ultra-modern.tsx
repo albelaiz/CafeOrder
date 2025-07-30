@@ -265,7 +265,259 @@ export default function AdminUltraModern() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === "overview" && (
           <div className="space-y-8">
-            {/* Overview content can be added here */}
+            {/* Key Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <StatCard
+                icon={DollarSign}
+                title="Total Revenue"
+                value={`$${stats?.totalRevenue?.toFixed(2) || "0.00"}`}
+                change="+12%"
+                color="bg-gradient-to-r from-green-500 to-emerald-600"
+              />
+              <StatCard
+                icon={TrendingUp}
+                title="Orders Today"
+                value={stats?.ordersToday || 0}
+                change="+8%"
+                color="bg-gradient-to-r from-blue-500 to-indigo-600"
+              />
+              <StatCard
+                icon={Clock}
+                title="Pending Orders"
+                value={stats?.pendingOrders || 0}
+                color="bg-gradient-to-r from-orange-500 to-red-500"
+              />
+              <StatCard
+                icon={Table}
+                title="Active Tables"
+                value={stats?.activeTables || 0}
+                color="bg-gradient-to-r from-purple-500 to-pink-500"
+              />
+            </div>
+
+            {/* Quick Actions */}
+            <Card className="card-modern">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Zap className="w-5 h-5 text-blue-600" />
+                  <span>Quick Actions</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Button
+                    onClick={() => setActiveTab("menu")}
+                    className="h-20 flex flex-col items-center justify-center space-y-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                  >
+                    <Plus className="w-6 h-6" />
+                    <span className="text-sm">Add Menu Item</span>
+                  </Button>
+                  <Button
+                    onClick={() => setActiveTab("tables")}
+                    variant="outline"
+                    className="h-20 flex flex-col items-center justify-center space-y-2 hover:bg-purple-50 hover:border-purple-300"
+                  >
+                    <Table className="w-6 h-6 text-purple-600" />
+                    <span className="text-sm text-purple-600">Manage Tables</span>
+                  </Button>
+                  <Button
+                    onClick={() => setActiveTab("orders")}
+                    variant="outline"
+                    className="h-20 flex flex-col items-center justify-center space-y-2 hover:bg-green-50 hover:border-green-300"
+                  >
+                    <Receipt className="w-6 h-6 text-green-600" />
+                    <span className="text-sm text-green-600">View Orders</span>
+                  </Button>
+                  <Button
+                    onClick={handleExportExcel}
+                    variant="outline"
+                    className="h-20 flex flex-col items-center justify-center space-y-2 hover:bg-orange-50 hover:border-orange-300"
+                  >
+                    <Download className="w-6 h-6 text-orange-600" />
+                    <span className="text-sm text-orange-600">Export Data</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Analytics Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Orders Timeline */}
+              <Card className="card-modern">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Activity className="w-5 h-5 text-blue-600" />
+                    <span>Order Activity</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {[
+                    { label: "Today", value: stats?.ordersToday || 0, color: "bg-blue-500" },
+                    { label: "This Week", value: stats?.ordersThisWeek || 0, color: "bg-green-500" },
+                    { label: "This Month", value: stats?.ordersThisMonth || 0, color: "bg-purple-500" },
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-3 h-3 ${item.color} rounded-full`}></div>
+                        <span className="font-medium text-gray-700">{item.label}</span>
+                      </div>
+                      <span className="text-xl font-bold text-gray-900">{item.value}</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Popular Items */}
+              <Card className="card-modern">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Star className="w-5 h-5 text-yellow-500" />
+                    <span>Popular Items</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {stats?.mostOrderedItems?.slice(0, 5).map((item, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-pink-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-900">{item.name}</span>
+                            <Badge variant="secondary" className="ml-2 text-xs">
+                              {item.category}
+                            </Badge>
+                          </div>
+                        </div>
+                        <span className="text-sm font-semibold text-gray-600">{item.count} orders</span>
+                      </div>
+                    )) || (
+                      <p className="text-gray-500 text-center py-8">No order data available</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent Orders */}
+            <Card className="card-modern">
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="flex items-center space-x-2">
+                    <Clock className="w-5 h-5 text-gray-600" />
+                    <span>Recent Orders</span>
+                  </CardTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveTab("orders")}
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    View All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {orders.slice(0, 3).map((order) => (
+                    <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                          #{order.orderNumber.slice(-3)}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Order #{order.orderNumber}</p>
+                          <div className="flex items-center space-x-2 text-sm text-gray-500">
+                            <MapPin className="w-3 h-3" />
+                            <span>Table {order.tableNumber}</span>
+                            <span>•</span>
+                            <span>{order.createdAt ? new Date(order.createdAt).toLocaleTimeString() : ""}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-gray-900">${order.total}</p>
+                        <Badge className={`${getStatusBadge(order.status)} text-xs mt-1`}>
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                  {orders.length === 0 && (
+                    <div className="text-center py-8">
+                      <Receipt className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500">No recent orders</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Table Status Overview */}
+            <Card className="card-modern">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Table className="w-5 h-5 text-blue-600" />
+                  <span>Table Status</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {tablesLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : tables.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Table className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500 mb-4">No tables created yet</p>
+                    <Button
+                      onClick={() => setActiveTab("tables")}
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Your First Table
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    {tables.slice(0, 12).map((table) => {
+                      const tableOrders = orders.filter(order => order.tableNumber === table.number);
+                      const activeTableOrders = tableOrders.filter(order => !["completed", "cancelled"].includes(order.status));
+                      
+                      return (
+                        <div key={table.id} className="group">
+                          <Button
+                            variant="outline"
+                            className={`w-full h-20 flex flex-col items-center justify-center space-y-1 transition-all duration-200 ${
+                              activeTableOrders.length > 0 
+                                ? "border-orange-300 bg-orange-50 hover:bg-orange-100" 
+                                : "hover:bg-blue-50 hover:border-blue-300"
+                            }`}
+                            onClick={() => setActiveTab("tables")}
+                          >
+                            <MapPin className={`w-5 h-5 ${
+                              activeTableOrders.length > 0 
+                                ? "text-orange-600" 
+                                : "text-gray-600 group-hover:text-blue-600"
+                            }`} />
+                            <span className="font-semibold">Table {table.number}</span>
+                            <span className="text-xs text-gray-500">{table.capacity} seats</span>
+                          </Button>
+                          {activeTableOrders.length > 0 && (
+                            <div className="mt-1 text-center">
+                              <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-800">
+                                {activeTableOrders.length} active
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         )}
 
