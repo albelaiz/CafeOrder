@@ -481,7 +481,7 @@ export default function Admin() {
                 Manage All Tables
               </Button>
             </div>
-            
+
             {tablesLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {[...Array(6)].map((_, i) => (
@@ -508,7 +508,7 @@ export default function Admin() {
                     order.status !== "completed" && 
                     order.status !== "cancelled"
                   );
-                  
+
                   return (
                     <div key={table.id} className="relative group">
                       <div className={`p-3 rounded-lg border-2 transition-all hover:shadow-md cursor-pointer ${
@@ -544,7 +544,7 @@ export default function Admin() {
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
                           size="sm"
@@ -810,7 +810,7 @@ export default function Admin() {
                           <div className="text-sm text-gray-600">{order.orderItems.length} items</div>
                         </div>
                       </div>
-                      
+
                       <div className="grid md:grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="font-medium">Items:</span>
@@ -941,16 +941,19 @@ export default function Admin() {
                           onClick={async () => {
                             const numberInput = document.getElementById('tableNumber') as HTMLInputElement;
                             const capacityInput = document.getElementById('tableCapacity') as HTMLInputElement;
-                            
+
                             if (numberInput.value) {
                               try {
                                 const response = await apiRequest("POST", "/api/tables", {
                                   number: parseInt(numberInput.value),
                                   capacity: parseInt(capacityInput.value) || 4
                                 });
-                                
+
                                 if (response.ok) {
                                   queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+                                  queryClient.invalidateQueries({ queryKey: ["/api/analytics/stats"] });
+                                  // Force refetch immediately
+                                  await queryClient.refetchQueries({ queryKey: ["/api/tables"] });
                                   toast({
                                     title: "Table Added",
                                     description: "New table has been created successfully and will appear in Quick Table Access.",
@@ -1034,13 +1037,13 @@ export default function Admin() {
                           onClick={async () => {
                             const numberInput = document.getElementById('firstTableNumber') as HTMLInputElement;
                             const capacityInput = document.getElementById('firstTableCapacity') as HTMLInputElement;
-                            
+
                             try {
                               const response = await apiRequest("POST", "/api/tables", {
                                 number: parseInt(numberInput.value) || 1,
                                 capacity: parseInt(capacityInput.value) || 4
                               });
-                              
+
                               if (response.ok) {
                                 queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
                                 toast({
@@ -1113,7 +1116,7 @@ export default function Admin() {
                         order.status !== "completed" && 
                         order.status !== "cancelled"
                       );
-                      
+
                       return (
                         <Card key={table.id} className="hover:shadow-lg transition-shadow">
                           <CardContent className="p-4">
@@ -1134,7 +1137,7 @@ export default function Admin() {
                                 {table.status}
                               </Badge>
                             </div>
-                            
+
                             {tableOrders.length > 0 && (
                               <div className="mb-3 p-2 bg-blue-50 rounded-md">
                                 <div className="flex items-center text-sm text-blue-800">
@@ -1151,7 +1154,7 @@ export default function Admin() {
                                 </Button>
                               </div>
                             )}
-                            
+
                             <div className="text-center mb-3">
                               <div className="inline-block p-2 bg-white border rounded">
                                 <img 
@@ -1175,7 +1178,7 @@ export default function Admin() {
                                 Test Order Page
                               </Button>
                             </div>
-                            
+
                             <div className="space-y-2">
                               <Select
                                 value={table.status}
@@ -1206,7 +1209,7 @@ export default function Admin() {
                                   <SelectItem value="out_of_order">Out of Order</SelectItem>
                                 </SelectContent>
                               </Select>
-                              
+
                               <div className="flex space-x-2">
                                 <Button
                                   size="sm"
@@ -1229,7 +1232,7 @@ export default function Admin() {
                                       });
                                       return;
                                     }
-                                    
+
                                     if (confirm(`Are you sure you want to delete Table ${table.number}?`)) {
                                       try {
                                         await apiRequest("DELETE", `/api/tables/${table.id}`);
