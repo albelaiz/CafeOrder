@@ -42,7 +42,7 @@ function AuthenticatedStaff() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">Verifying authentication...</p>
         </div>
       </div>
     );
@@ -50,12 +50,12 @@ function AuthenticatedStaff() {
 
   // Redirect to login if user is not authenticated
   if (!isAuthenticated || !user) {
-    return <Redirect to="/login" replace />;
+    return <Redirect to="/login?role=staff" replace />;
   }
 
   // Redirect to login if user doesn't have staff or admin role
   if (!["staff", "admin"].includes(user.role)) {
-    return <Redirect to="/login" replace />;
+    return <Redirect to="/login?role=staff" replace />;
   }
 
   return <StaffUltraModern />;
@@ -66,33 +66,26 @@ function AuthenticatedAdmin() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-cafe-bg">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cafe-brown mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verifying authentication...</p>
         </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return <Redirect to="/login" />;
+  // Redirect to login if user is not authenticated
+  if (!isAuthenticated || !user) {
+    return <Redirect to="/login?role=admin" replace />;
   }
 
-  if (user && user.role !== "admin") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-cafe-bg">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Access Denied</h2>
-          <p className="text-gray-600">You need admin privileges to access this page.</p>
-        </div>
-      </div>
-    );
+  // Redirect to login if user doesn't have admin role
+  if (user.role !== "admin") {
+    return <Redirect to="/login?role=admin" replace />;
   }
 
-  return (
-      <AdminUltraModern />
-  );
+  return <AdminUltraModern />;
 }
 
 function App() {

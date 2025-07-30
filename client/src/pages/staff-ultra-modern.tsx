@@ -19,6 +19,7 @@ export default function StaffUltraModern() {
   const [statusFilter, setStatusFilter] = useState("active");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { logoutMutation } = useAuth();
 
   const { data: orders = [], isLoading } = useQuery<OrderWithItems[]>({
     queryKey: ["/api/orders"],
@@ -126,7 +127,7 @@ export default function StaffUltraModern() {
                 <p className="text-sm text-gray-500">Kitchen Dashboard</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <Button
                 variant="outline"
@@ -136,7 +137,7 @@ export default function StaffUltraModern() {
                 <RefreshCw className="w-4 h-4" />
                 <span>Refresh</span>
               </Button>
-              
+
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40">
                   <SelectValue />
@@ -225,7 +226,7 @@ export default function StaffUltraModern() {
             {filteredOrders.map((order) => {
               const statusConfig = getStatusConfig(order.status);
               const nextStatus = getNextStatusInfo(order.status);
-              
+
               return (
                 <Card key={order.id} className="card-modern overflow-hidden group">
                   <CardHeader className="pb-3">
@@ -244,7 +245,7 @@ export default function StaffUltraModern() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <Badge className={`${statusConfig.color} border font-medium px-3 py-1`}>
                         <div className="flex items-center space-x-1">
                           {statusConfig.icon}
@@ -253,7 +254,7 @@ export default function StaffUltraModern() {
                       </Badge>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent className="space-y-4">
                     {/* Order Items */}
                     <div className="space-y-2">
@@ -285,7 +286,7 @@ export default function StaffUltraModern() {
                         </div>
                         <span className="text-sm font-medium">{order.createdAt ? new Date(order.createdAt).toLocaleTimeString() : ""}</span>
                       </div>
-                      
+
                       <div className="flex justify-between items-center">
                         <div className="flex items-center space-x-2">
                           <DollarSign className="w-4 h-4 text-gray-500" />

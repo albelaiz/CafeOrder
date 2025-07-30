@@ -6,9 +6,12 @@ import type { LoginData, User } from "@shared/schema";
 export function useAuth() {
   const { toast } = useToast();
   
-  const { data: user, isLoading } = useQuery<User | null>({
+  const { data: user, isLoading, error } = useQuery<User | null>({
     queryKey: ["/api/auth/user"],
     retry: false,
+    staleTime: 0, // Always check server for fresh data
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   const loginMutation = useMutation({
@@ -40,9 +43,18 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest("POST", "/api/logout");
+      const res = await apiRequest("POST", "/api/logout");
+      if (!res.ok) {
+        throw new Error("Logout failed");
+      }
+      return res.json();
     },
     onSuccess: () => {
+      // Clear all cached data
+      queryClient.clear();
+      // Clear localStorage
+      localStorage.clear();
+      // Set user to null
       queryClient.setQueryData(["/api/auth/user"], null);
       toast({
         title: "Logged Out",
@@ -50,9 +62,13 @@ export function useAuth() {
       });
     },
     onError: (error: Error) => {
+      // Even if logout fails on server, clear client state
+      queryClient.clear();
+      localStorage.clear();
+      queryClient.setQueryData(["/api/auth/user"], null);
       toast({
-        title: "Logout Failed",
-        description: error.message,
+        title: "Session Expired", 
+        description: "Please log in again",
         variant: "destructive",
       });
     },
@@ -61,8 +77,9 @@ export function useAuth() {
   return {
     user: user ?? null,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && !error,
     loginMutation,
     logoutMutation,
+    error,
   };
 }

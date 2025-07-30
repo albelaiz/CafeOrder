@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +37,7 @@ export default function AdminUltraModern() {
   const [isAddTableOpen, setIsAddTableOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { logoutMutation } = useAuth();
 
   const { data: menuItems = [], isLoading: menuLoading } = useQuery<MenuItem[]>({
     queryKey: ["/api/menu"],
@@ -499,7 +501,7 @@ export default function AdminUltraModern() {
                     {tables.slice(0, 12).map((table) => {
                       const tableOrders = orders.filter(order => order.tableNumber === table.number);
                       const activeTableOrders = tableOrders.filter(order => !["completed", "cancelled"].includes(order.status));
-                      
+
                       return (
                         <div key={table.id} className="group">
                           <Button
@@ -746,7 +748,7 @@ export default function AdminUltraModern() {
                           {item.isActive ? "Active" : "Inactive"}
                         </Badge>
                       </div>
-                      
+
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center space-x-2">
                           <span className="text-xl font-bold text-gray-900">${item.price}</span>
@@ -755,7 +757,7 @@ export default function AdminUltraModern() {
                           </Badge>
                         </div>
                       </div>
-                      
+
                       <div className="flex space-x-2">
                         <Button
                           size="sm"
@@ -795,7 +797,7 @@ export default function AdminUltraModern() {
               <h2 className="text-2xl font-bold text-gray-900">Order Management</h2>
               <p className="text-gray-600 mt-1">Monitor and manage customer orders</p>
             </div>
-            
+
             <div className="grid gap-6">
               {orders.map((order) => (
                 <Card key={order.id} className="card-modern">
@@ -817,12 +819,12 @@ export default function AdminUltraModern() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <Badge className={`${getStatusBadge(order.status)} border font-medium px-3 py-1`}>
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </Badge>
                     </div>
-                    
+
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
                         <h4 className="font-medium text-gray-900 mb-3">Order Items</h4>
@@ -843,13 +845,13 @@ export default function AdminUltraModern() {
                           ))}
                         </div>
                       </div>
-                      
+
                       <div className="flex flex-col justify-between">
                         <div className="text-right">
                           <p className="text-sm text-gray-500 mb-1">Total Amount</p>
                           <p className="text-2xl font-bold text-gray-900">${order.total}</p>
                         </div>
-                        
+
                         {order.notes && (
                           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                             <p className="text-sm text-blue-800">
@@ -962,7 +964,7 @@ export default function AdminUltraModern() {
                 {tables.map((table) => {
                   const tableOrders = orders.filter(order => order.tableNumber === table.number);
                   const activeTableOrders = tableOrders.filter(order => !["completed", "cancelled"].includes(order.status));
-                  
+
                   return (
                     <Card key={table.id} className="card-modern overflow-hidden group">
                       <CardContent className="p-6">
@@ -990,7 +992,7 @@ export default function AdminUltraModern() {
                             )}
                           </div>
                         </div>
-                        
+
                         <div className="space-y-4">
                           {/* QR Code */}
                           <div className="flex justify-center">
@@ -1002,7 +1004,7 @@ export default function AdminUltraModern() {
                               />
                             </div>
                           </div>
-                          
+
                           {/* Table Stats */}
                           <div className="grid grid-cols-2 gap-3 text-center">
                             <div className="bg-gray-50 rounded-lg p-3">
@@ -1014,7 +1016,7 @@ export default function AdminUltraModern() {
                               <p className="text-lg font-bold text-gray-900">{activeTableOrders.length}</p>
                             </div>
                           </div>
-                          
+
                           {/* QR Code URL */}
                           <div className="text-center">
                             <p className="text-xs text-gray-500 mb-2">QR Code URL:</p>
@@ -1022,7 +1024,7 @@ export default function AdminUltraModern() {
                               {table.qrCode}
                             </p>
                           </div>
-                          
+
                           {/* Action Buttons */}
                           <div className="flex space-x-2">
                             <Button

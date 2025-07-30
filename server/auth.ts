@@ -86,7 +86,11 @@ export function setupAuth(app: Express) {
         console.error("Logout error:", err);
         return res.status(500).json({ message: "Logout failed" });
       }
-      res.clearCookie("connect.sid");
+      res.clearCookie("connect.sid", {
+        path: '/',
+        httpOnly: true,
+        secure: false // Set to true in production with HTTPS
+      });
       res.json({ message: "Logged out successfully" });
     });
   });
@@ -94,7 +98,7 @@ export function setupAuth(app: Express) {
   // Get current user endpoint
   app.get("/api/auth/user", (req, res) => {
     const user = (req.session as any)?.user;
-    if (!user) {
+    if (!user || !req.session || !req.sessionID) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     res.json(user);

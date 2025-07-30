@@ -16,6 +16,10 @@ export default function LoginPage() {
     password: "",
   });
 
+  // Get role from URL params to show appropriate message
+  const urlParams = new URLSearchParams(window.location.search);
+  const requiredRole = urlParams.get('role');
+
   // Use useEffect for redirect to avoid setState during render
   useEffect(() => {
     if (!isLoading && user) {
@@ -60,8 +64,15 @@ export default function LoginPage() {
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
             <CardDescription className="text-center text-gray-600 dark:text-gray-300">
-              Access the staff dashboard or admin panel
+              {requiredRole ? `Please log in to access the ${requiredRole} dashboard` : 'Access the staff dashboard or admin panel'}
             </CardDescription>
+            {requiredRole && (
+              <div className="mt-3 p-3 bg-orange-100 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                <p className="text-sm text-orange-800 dark:text-orange-200 text-center">
+                  Session expired. Please log in again.
+                </p>
+              </div>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-5">
