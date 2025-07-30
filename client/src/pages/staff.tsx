@@ -123,19 +123,6 @@ export default function Staff() {
                   <h2 className="text-2xl font-bold text-gray-800">Staff Dashboard</h2>
                   <p className="text-gray-600">Manage orders and café operations</p>
                 </div>
-                <div className="ml-4">
-                  <Button
-                    variant="outline"
-                    className="border-red-500 text-red-600 hover:bg-red-50"
-                    onClick={() => {
-                      localStorage.clear();
-                      queryClient.setQueryData(["/api/auth/user"], null);
-                      window.location.href = "/login";
-                    }}
-                  >
-                    Logout
-                  </Button>
-                </div>
               </div>
               <div className="flex items-center space-x-4 mt-4 md:mt-0">
                 <Button

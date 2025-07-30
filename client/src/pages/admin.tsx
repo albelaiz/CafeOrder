@@ -262,19 +262,6 @@ export default function Admin() {
                 <h2 className="text-3xl font-bold text-gray-800">Admin Dashboard Overview</h2>
                 <p className="text-gray-600">Manage menu, staff, tables, and café operations</p>
               </div>
-              <div className="ml-4">
-                <Button
-                  variant="outline"
-                  className="border-red-500 text-red-600 hover:bg-red-50"
-                  onClick={() => {
-                    localStorage.clear();
-                    queryClient.setQueryData(["/api/auth/user"], null);
-                    window.location.href = "/login";
-                  }}
-                >
-                  Logout
-                </Button>
-              </div>
             </div>
           </div>
           {/* Modern Overview Stats */}
