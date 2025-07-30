@@ -246,81 +246,8 @@ export default function Admin() {
         </Button>
       </header>
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Admin Dashboard Header with Modern Overview */}
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <div className="flex items-center gap-4 mb-2">
-              <button
-                type="button"
-                aria-label="Go to home page"
-                onClick={() => (window.location.href = "/")}
-                className="focus:outline-none"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-cafe-brown hover:scale-110 transition-transform duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 17h8a4 4 0 004-4V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6a4 4 0 004 4z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21h8" /></svg>
-              </button>
-              <div>
-                <h2 className="text-3xl font-bold text-gray-800">Admin Dashboard Overview</h2>
-                <p className="text-gray-600">Manage menu, staff, tables, and café operations</p>
-              </div>
-            </div>
-          </div>
-          {/* Modern Overview Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="p-6 shadow-md border-2 border-green-100 bg-white/80">
-              <div className="flex items-center gap-4">
-                <BarChart className="w-10 h-10 text-green-600" />
-                <div>
-                  <div className="text-3xl font-bold text-green-700">{(stats?.totalRevenue || 0).toFixed(2)} DH</div>
-                  <div className="text-sm text-gray-600">Total Sales</div>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-6 shadow-md border-2 border-amber-100 bg-white/80">
-              <div className="flex items-center gap-4">
-                <Package className="w-10 h-10 text-amber-600" />
-                <div>
-                  <div className="text-3xl font-bold text-amber-700">{totalItemsSold}</div>
-                  <div className="text-sm text-gray-600">Total Items Sold</div>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-6 shadow-md border-2 border-blue-100 bg-white/80">
-              <div className="flex items-center gap-4">
-                <Receipt className="w-10 h-10 text-blue-600" />
-                <div>
-                  <div className="text-3xl font-bold text-blue-700">{stats?.totalOrders || 0}</div>
-                  <div className="text-sm text-gray-600">Total Orders</div>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-6 shadow-md border-2 border-purple-100 bg-white/80">
-              <div className="flex items-center gap-4">
-                <Utensils className="w-10 h-10 text-purple-600" />
-                <div>
-                  <div className="text-3xl font-bold text-purple-700">{menuItems.length}</div>
-                  <div className="text-sm text-gray-600">Menu Items</div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-                  </div>
-                  <div className="text-sm text-gray-600">Menu Items</div>
-                </div>
-              </Card>
-              
-              <Card className="p-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">
-                    {stats?.pendingOrders || 0}
-                  </div>
-                  <div className="text-sm text-gray-600">Pending Orders</div>
-                </div>
-              </Card>
-            </div>
-
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <div></div></div>
+        
+                  
               <div className="flex items-center space-x-4 mt-4 md:mt-0">
                 <Dialog open={isAddMenuOpen} onOpenChange={setIsAddMenuOpen}>
                   <DialogTrigger asChild>
