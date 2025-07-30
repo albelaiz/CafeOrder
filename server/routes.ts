@@ -15,7 +15,7 @@ const orderCreationSchema = z.object({
 export function registerRoutes(app: Express): Server {
   // Health check endpoint for Fly.io
   app.get("/api/health", (req, res) => {
-    res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+    res.status(200).send('OK');
   });
 
   // Public analytics stats (for home page overview)

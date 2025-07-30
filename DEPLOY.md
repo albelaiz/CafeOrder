@@ -33,6 +33,18 @@ fly launch
 fly deploy
 ```
 
+3. **Check deployment status and logs**:
+```bash
+# View deployment logs
+fly logs
+
+# Check app status
+fly status
+
+# Test health check
+fly ssh console -C "curl http://localhost:8080/api/health"
+```
+
 ## Database Setup
 
 If you need a production PostgreSQL database, you can create one on Fly.io:
