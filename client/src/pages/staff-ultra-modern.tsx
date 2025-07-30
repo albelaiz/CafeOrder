@@ -150,6 +150,20 @@ export default function StaffUltraModern() {
                   <SelectItem value="completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
+
+              <Button
+                variant="destructive"
+                size="lg"
+                className="text-lg px-8 py-3 font-bold shadow-lg border-2 border-red-600 hover:bg-red-700 transition-colors duration-200"
+                onClick={() => {
+                  localStorage.clear();
+                  queryClient.clear();
+                  queryClient.setQueryData(["/api/auth/user"], null);
+                  window.location.href = "/login";
+                }}
+              >
+                Logout
+              </Button>
             </div>
           </div>
         </div>

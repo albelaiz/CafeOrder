@@ -19,11 +19,14 @@ export default function LoginPage() {
   // Use useEffect for redirect to avoid setState during render
   useEffect(() => {
     if (!isLoading && user) {
-      if (user.role === "admin") {
-        setLocation("/admin");
-      } else {
-        setLocation("/staff");
-      }
+      // Small delay to ensure any logout cleanup is complete
+      setTimeout(() => {
+        if (user.role === "admin") {
+          setLocation("/admin");
+        } else {
+          setLocation("/staff");
+        }
+      }, 100);
     }
   }, [isLoading, user, setLocation]);
 
