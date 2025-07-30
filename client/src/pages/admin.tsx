@@ -238,7 +238,8 @@ export default function Admin() {
           className="text-lg px-8 py-3 font-bold shadow-lg border-2 border-red-600 hover:bg-red-700 transition-colors duration-200"
           onClick={() => {
             localStorage.clear();
-            window.location.href = "/";
+            queryClient.setQueryData(["/api/auth/user"], null);
+            window.location.href = "/login";
           }}
         >
           Logout
@@ -267,7 +268,8 @@ export default function Admin() {
                   className="border-red-500 text-red-600 hover:bg-red-50"
                   onClick={() => {
                     localStorage.clear();
-                    window.location.href = "/";
+                    queryClient.setQueryData(["/api/auth/user"], null);
+                    window.location.href = "/login";
                   }}
                 >
                   Logout
