@@ -238,13 +238,11 @@ export default function AdminUltraModern() {
                 size="lg"
                 className="text-lg px-8 py-3 font-bold shadow-lg border-2 border-red-600 hover:bg-red-700 transition-colors duration-200"
                 onClick={() => {
-                  localStorage.clear();
-                  queryClient.clear();
-                  queryClient.setQueryData(["/api/auth/user"], null);
-                  window.location.href = "/login";
+                  logoutMutation.mutate();
                 }}
+                disabled={logoutMutation.isPending}
               >
-                Logout
+                {logoutMutation.isPending ? "Logging out..." : "Logout"}
               </Button>
             </div>
           </div>

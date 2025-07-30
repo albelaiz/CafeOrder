@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export default function StaffUltraModern() {
   const [statusFilter, setStatusFilter] = useState("active");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { logoutMutation } = useAuth();
   const { logoutMutation } = useAuth();
 
   const { data: orders = [], isLoading } = useQuery<OrderWithItems[]>({
@@ -157,13 +159,11 @@ export default function StaffUltraModern() {
                 size="lg"
                 className="text-lg px-8 py-3 font-bold shadow-lg border-2 border-red-600 hover:bg-red-700 transition-colors duration-200"
                 onClick={() => {
-                  localStorage.clear();
-                  queryClient.clear();
-                  queryClient.setQueryData(["/api/auth/user"], null);
-                  window.location.href = "/login";
+                  logoutMutation.mutate();
                 }}
+                disabled={logoutMutation.isPending}
               >
-                Logout
+                {logoutMutation.isPending ? "Logging out..." : "Logout"}
               </Button>
             </div>
           </div>

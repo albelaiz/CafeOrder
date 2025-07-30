@@ -37,6 +37,7 @@ function Router() {
 function AuthenticatedStaff() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
+  // Always show loading during auth check
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -48,14 +49,11 @@ function AuthenticatedStaff() {
     );
   }
 
-  // Redirect to login if user is not authenticated
-  if (!isAuthenticated || !user) {
-    return <Redirect to="/login?role=staff" replace />;
-  }
-
-  // Redirect to login if user doesn't have staff or admin role
-  if (!["staff", "admin"].includes(user.role)) {
-    return <Redirect to="/login?role=staff" replace />;
+  // Strict authentication check - redirect if ANY condition fails
+  if (!isAuthenticated || !user || !["staff", "admin"].includes(user.role)) {
+    // Use window.location.replace to prevent going back
+    window.location.replace("/login?role=staff");
+    return null;
   }
 
   return <StaffUltraModern />;
@@ -64,6 +62,7 @@ function AuthenticatedStaff() {
 function AuthenticatedAdmin() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
+  // Always show loading during auth check
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -75,14 +74,11 @@ function AuthenticatedAdmin() {
     );
   }
 
-  // Redirect to login if user is not authenticated
-  if (!isAuthenticated || !user) {
-    return <Redirect to="/login?role=admin" replace />;
-  }
-
-  // Redirect to login if user doesn't have admin role
-  if (user.role !== "admin") {
-    return <Redirect to="/login?role=admin" replace />;
+  // Strict authentication check - redirect if ANY condition fails
+  if (!isAuthenticated || !user || user.role !== "admin") {
+    // Use window.location.replace to prevent going back
+    window.location.replace("/login?role=admin");
+    return null;
   }
 
   return <AdminUltraModern />;

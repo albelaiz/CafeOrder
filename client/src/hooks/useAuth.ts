@@ -54,23 +54,18 @@ export function useAuth() {
       queryClient.clear();
       // Clear localStorage
       localStorage.clear();
-      // Set user to null
+      // Set user to null immediately
       queryClient.setQueryData(["/api/auth/user"], null);
-      toast({
-        title: "Logged Out",
-        description: "You have been logged out successfully",
-      });
+      // Force redirect to login immediately
+      window.location.replace("/login");
     },
     onError: (error: Error) => {
       // Even if logout fails on server, clear client state
       queryClient.clear();
       localStorage.clear();
       queryClient.setQueryData(["/api/auth/user"], null);
-      toast({
-        title: "Session Expired", 
-        description: "Please log in again",
-        variant: "destructive",
-      });
+      // Force redirect to login immediately
+      window.location.replace("/login");
     },
   });
 
