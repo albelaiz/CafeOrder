@@ -137,6 +137,9 @@ export default function Admin() {
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
       queryClient.invalidateQueries({ queryKey: ["/api/analytics/stats"] });
     }
+    if (message.type === "TABLE_ADDED" || message.type === "TABLE_UPDATED" || message.type === "TABLE_DELETED" || message.type === "TABLE_STATUS_UPDATED") {
+      queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+    }
   });
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
@@ -207,14 +210,57 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-cafe-bg">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Admin Dashboard Header */}
+        {/* Admin Dashboard Header with Overview Stats */}
         <Card className="mb-8">
           <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Admin Dashboard</h2>
                 <p className="text-gray-600">Manage menu, staff, and café operations</p>
               </div>
+            </div>
+            
+            {/* Overview Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <Card className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {(stats?.totalRevenue || 0).toFixed(2)} DH
+                  </div>
+                  <div className="text-sm text-gray-600">Total Sales</div>
+                </div>
+              </Card>
+              
+              <Card className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {stats?.totalOrders || 0}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Orders</div>
+                </div>
+              </Card>
+              
+              <Card className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {menuItems.length}
+                  </div>
+                  <div className="text-sm text-gray-600">Menu Items</div>
+                </div>
+              </Card>
+              
+              <Card className="p-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600">
+                    {stats?.pendingOrders || 0}
+                  </div>
+                  <div className="text-sm text-gray-600">Pending Orders</div>
+                </div>
+              </Card>
+            </div>
+
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              <div></div></div>
               <div className="flex items-center space-x-4 mt-4 md:mt-0">
                 <Dialog open={isAddMenuOpen} onOpenChange={setIsAddMenuOpen}>
                   <DialogTrigger asChild>
@@ -950,14 +996,18 @@ export default function Admin() {
                                 });
 
                                 if (response.ok) {
-                                  queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
-                                  queryClient.invalidateQueries({ queryKey: ["/api/analytics/stats"] });
-                                  // Force refetch immediately
-                                  await queryClient.refetchQueries({ queryKey: ["/api/tables"] });
+                                  // Invalidate and refetch all table-related queries
+                                  await Promise.all([
+                                    queryClient.invalidateQueries({ queryKey: ["/api/tables"] }),
+                                    queryClient.invalidateQueries({ queryKey: ["/api/analytics/stats"] }),
+                                    queryClient.refetchQueries({ queryKey: ["/api/tables"] })
+                                  ]);
+                                  
                                   toast({
                                     title: "Table Added",
-                                    description: "New table has been created successfully and will appear in Quick Table Access.",
+                                    description: "New table has been created successfully and is now available in Quick Table Access.",
                                   });
+                                  
                                   // Clear the inputs and close dialog
                                   numberInput.value = '';
                                   capacityInput.value = '';
@@ -1045,7 +1095,13 @@ export default function Admin() {
                               });
 
                               if (response.ok) {
-                                queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+                                // Invalidate and refetch all table-related queries
+                                await Promise.all([
+                                  queryClient.invalidateQueries({ queryKey: ["/api/tables"] }),
+                                  queryClient.invalidateQueries({ queryKey: ["/api/analytics/stats"] }),
+                                  queryClient.refetchQueries({ queryKey: ["/api/tables"] })
+                                ]);
+                                
                                 toast({
                                   title: "First Table Created!",
                                   description: "Your table is ready for customers to scan and order.",

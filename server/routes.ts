@@ -237,6 +237,17 @@ export function registerRoutes(app: Express): Server {
       };
 
       const newTable = await storage.createTable(tableData as any);
+      
+      // Broadcast to all connected clients
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: "TABLE_ADDED",
+            data: newTable
+          }));
+        }
+      });
+      
       res.status(201).json(newTable);
     } catch (error) {
       console.error("Error creating table:", error);
@@ -255,6 +266,17 @@ export function registerRoutes(app: Express): Server {
         capacity,
         status,
       });
+      
+      // Broadcast to all connected clients
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: "TABLE_UPDATED",
+            data: updatedTable
+          }));
+        }
+      });
+      
       res.json(updatedTable);
     } catch (error) {
       console.error("Error updating table:", error);
@@ -268,7 +290,19 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      await storage.deleteTable(parseInt(req.params.id));
+      const tableId = parseInt(req.params.id);
+      await storage.deleteTable(tableId);
+      
+      // Broadcast to all connected clients
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: "TABLE_DELETED",
+            data: { id: tableId }
+          }));
+        }
+      });
+      
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting table:", error);
