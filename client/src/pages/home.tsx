@@ -1,11 +1,51 @@
+
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Coffee, QrCode, Smartphone, Clock, Users, Star, MapPin } from "lucide-react";
+import { Coffee, QrCode, Smartphone, Clock, Users, Star, MapPin, BarChart, Package } from "lucide-react";
 
-export default function Home() {
+
   const [tableNumber, setTableNumber] = useState("");
+
+  // Fetch analytics stats for overview (public endpoint)
+  const { data: stats, isLoading: statsLoading } = useQuery<{ totalRevenue: number; totalOrders: number; }>(
+    {
+      queryKey: ["/api/public/analytics/stats"],
+      queryFn: async () => {
+        const res = await apiRequest("GET", "/api/public/analytics/stats");
+        return res.json();
+      },
+    }
+  );
+
+  // Fetch all completed orders to calculate total items sold (public endpoint)
+  const { data: completedOrders = [], isLoading: ordersLoading } = useQuery<any[]>({
+    queryKey: ["/api/public/orders/completed"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/public/orders/completed");
+      return res.json();
+    },
+  });
+
+  // Calculate total items sold
+  const totalItemsSold = completedOrders.reduce((sum, order) => {
+    if (!order.items) return sum;
+    return sum + order.items.reduce((itemSum: number, item: any) => itemSum + (item.quantity || 0), 0);
+  }, 0);
+
+  // Fetch tables from API
+  const { data: tables = [], isLoading: tablesLoading } = useQuery<any[]>({
+    queryKey: ["/api/tables"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/tables");
+      return res.json();
+    },
+    refetchInterval: 5000, // Poll every 5 seconds for new tables
+    refetchOnWindowFocus: true, // Also refetch when user focuses the tab
+  });
 
   const handleOrderNow = () => {
     if (tableNumber) {
@@ -20,17 +60,50 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cafe-bg to-orange-50">
+      {/* Overview Section */}
+      <div className="max-w-4xl mx-auto px-4 pt-8 pb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <Card className="p-4">
+            <div className="flex items-center space-x-4">
+              <BarChart className="w-8 h-8 text-green-600" />
+              <div>
+                <div className="text-2xl font-bold text-green-600">
+                  {statsLoading ? '...' : (stats?.totalRevenue || 0).toFixed(2)} DH
+                </div>
+                <div className="text-sm text-gray-600">Total Sales</div>
+              </div>
+            </div>
+          </Card>
+          <Card className="p-4">
+            <div className="flex items-center space-x-4">
+              <Package className="w-8 h-8 text-amber-600" />
+              <div>
+                <div className="text-2xl font-bold text-amber-600">
+                  {ordersLoading ? '...' : totalItemsSold}
+                </div>
+                <div className="text-sm text-gray-600">Total Items Sold</div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-cafe-brown to-cafe-light text-white py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="flex justify-center mb-6">
-            <Coffee className="w-16 h-16" />
+            <button
+              type="button"
+              aria-label="Go to home page"
+              onClick={() => (window.location.href = "/")}
+              className="focus:outline-none"
+            >
+              <Coffee className="w-16 h-16 hover:scale-110 transition-transform duration-150" />
+            </button>
           </div>
           <h1 className="text-5xl font-bold mb-4">Café Direct</h1>
           <p className="text-xl opacity-90 mb-8 text-black">
             Order directly from your table - No waiting, no signup required!
           </p>
-          
           {/* Quick Order Section */}
           <div className="text-lg font-semibold mb-4 text-black">
             <h3 className="text-lg font-semibold mb-4">Start Your Order</h3>
@@ -62,7 +135,6 @@ export default function Home() {
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
           Why Choose Café Direct?
         </h2>
-        
         <div className="grid md:grid-cols-3 gap-8">
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardContent className="pt-6">
@@ -75,7 +147,6 @@ export default function Home() {
               </p>
             </CardContent>
           </Card>
-
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardContent className="pt-6">
               <Smartphone className="w-12 h-12 text-cafe-accent mx-auto mb-4" />
@@ -87,7 +158,6 @@ export default function Home() {
               </p>
             </CardContent>
           </Card>
-
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardContent className="pt-6">
               <Star className="w-12 h-12 text-cafe-accent mx-auto mb-4" />
@@ -108,7 +178,6 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
             How It Works
           </h2>
-          
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="bg-cafe-brown text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4 text-xl font-bold">
@@ -121,7 +190,6 @@ export default function Home() {
                 Use your phone to scan the QR code on your table
               </p>
             </div>
-            
             <div className="text-center">
               <div className="bg-cafe-brown text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                 2
@@ -133,7 +201,6 @@ export default function Home() {
                 Explore our menu and add items to your cart
               </p>
             </div>
-            
             <div className="text-center">
               <div className="bg-cafe-brown text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                 3
@@ -149,42 +216,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* QR Code Demo Section */}
-      <div className="max-w-4xl mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Table QR Codes
-        </h2>
-        <p className="text-center text-gray-600 mb-12">
-          Each table has a unique QR code. Scan to start ordering from that table.
-        </p>
-        
-        <div className="grid md:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((table) => (
-            <Card key={table} className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-center mb-4">
-                  <MapPin className="w-4 h-4 text-cafe-brown mr-1" />
-                  <span className="font-semibold text-cafe-brown">Table {table}</span>
-                </div>
-                <img
-                  src={generateQRCode(table)}
-                  alt={`QR Code for Table ${table}`}
-                  className="mx-auto mb-4 rounded-lg"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.location.href = `/order?t=${table}`}
-                  className="w-full"
-                >
-                  <QrCode className="w-4 h-4 mr-2" />
-                  Order from Table {table}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
 
       {/* Staff Login Section */}
       <div className="bg-cafe-brown text-white py-8">

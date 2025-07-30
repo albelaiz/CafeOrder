@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Download, Utensils, Receipt, BarChart, Users, Edit, ToggleLeft, ToggleRight, Trash2, Table, QrCode } from "lucide-react";
+import { Plus, Download, Utensils, Receipt, BarChart, Users, Edit, ToggleLeft, ToggleRight, Trash2, Table, QrCode, Package } from "lucide-react";
 import type { MenuItem, OrderWithItems } from "@shared/schema";
 import { insertMenuItemSchema } from "@shared/schema";
 import { z } from "zod";
@@ -21,6 +21,7 @@ import { z } from "zod";
 const formSchema = insertMenuItemSchema.omit({ id: true, createdAt: true, updatedAt: true });
 
 export default function Admin() {
+  // ...existing code...
   const [activeTab, setActiveTab] = useState("menu");
   const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const { toast } = useToast();
@@ -207,43 +208,99 @@ export default function Admin() {
   const completedOrders = orders.filter(order => order.status === "completed");
   const revenue = completedOrders.reduce((sum, order) => sum + parseFloat(order.total), 0);
 
+  // Calculate total items sold (sum of all item quantities in completed orders)
+  const totalItemsSold = completedOrders.reduce((sum, order) => {
+    if (!order.items) return sum;
+    return sum + order.items.reduce((itemSum, item) => itemSum + (item.quantity || 0), 0);
+  }, 0);
+
   return (
     <div className="min-h-screen bg-cafe-bg">
+      {/* Prominent Logout Button in Header */}
+      <header className="w-full flex justify-end items-center px-8 py-6 bg-white/90 shadow-md sticky top-0 z-50">
+        <Button
+          variant="destructive"
+          size="lg"
+          className="text-lg px-8 py-3 font-bold shadow-lg border-2 border-red-600"
+          onClick={() => {
+            localStorage.clear();
+            window.location.href = "/";
+          }}
+        >
+          Logout
+        </Button>
+      </header>
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Admin Dashboard Header with Overview Stats */}
-        <Card className="mb-8">
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        {/* Admin Dashboard Header with Modern Overview */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div className="flex items-center gap-4 mb-2">
+              <button
+                type="button"
+                aria-label="Go to home page"
+                onClick={() => (window.location.href = "/")}
+                className="focus:outline-none"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-cafe-brown hover:scale-110 transition-transform duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 17h8a4 4 0 004-4V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6a4 4 0 004 4z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21h8" /></svg>
+              </button>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Admin Dashboard</h2>
-                <p className="text-gray-600">Manage menu, staff, and café operations</p>
+                <h2 className="text-3xl font-bold text-gray-800">Admin Dashboard Overview</h2>
+                <p className="text-gray-600">Manage menu, staff, tables, and café operations</p>
+              </div>
+              <div className="ml-4">
+                <Button
+                  variant="outline"
+                  className="border-red-500 text-red-600 hover:bg-red-50"
+                  onClick={() => {
+                    localStorage.clear();
+                    window.location.href = "/";
+                  }}
+                >
+                  Logout
+                </Button>
               </div>
             </div>
-            
-            {/* Overview Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <Card className="p-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {(stats?.totalRevenue || 0).toFixed(2)} DH
-                  </div>
+          </div>
+          {/* Modern Overview Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="p-6 shadow-md border-2 border-green-100 bg-white/80">
+              <div className="flex items-center gap-4">
+                <BarChart className="w-10 h-10 text-green-600" />
+                <div>
+                  <div className="text-3xl font-bold text-green-700">{(stats?.totalRevenue || 0).toFixed(2)} DH</div>
                   <div className="text-sm text-gray-600">Total Sales</div>
                 </div>
-              </Card>
-              
-              <Card className="p-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {stats?.totalOrders || 0}
-                  </div>
+              </div>
+            </Card>
+            <Card className="p-6 shadow-md border-2 border-amber-100 bg-white/80">
+              <div className="flex items-center gap-4">
+                <Package className="w-10 h-10 text-amber-600" />
+                <div>
+                  <div className="text-3xl font-bold text-amber-700">{totalItemsSold}</div>
+                  <div className="text-sm text-gray-600">Total Items Sold</div>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-6 shadow-md border-2 border-blue-100 bg-white/80">
+              <div className="flex items-center gap-4">
+                <Receipt className="w-10 h-10 text-blue-600" />
+                <div>
+                  <div className="text-3xl font-bold text-blue-700">{stats?.totalOrders || 0}</div>
                   <div className="text-sm text-gray-600">Total Orders</div>
                 </div>
-              </Card>
-              
-              <Card className="p-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {menuItems.length}
+              </div>
+            </Card>
+            <Card className="p-6 shadow-md border-2 border-purple-100 bg-white/80">
+              <div className="flex items-center gap-4">
+                <Utensils className="w-10 h-10 text-purple-600" />
+                <div>
+                  <div className="text-3xl font-bold text-purple-700">{menuItems.length}</div>
+                  <div className="text-sm text-gray-600">Menu Items</div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
                   </div>
                   <div className="text-sm text-gray-600">Menu Items</div>
                 </div>

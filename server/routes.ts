@@ -13,6 +13,27 @@ const orderCreationSchema = z.object({
 });
 
 export function registerRoutes(app: Express): Server {
+  // Public analytics stats (for home page overview)
+  app.get("/api/public/analytics/stats", async (req, res) => {
+    try {
+      const stats = await storage.getOrderStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching public stats:", error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
+  // Public completed orders (for home page total items sold)
+  app.get("/api/public/orders/completed", async (req, res) => {
+    try {
+      const orders = await storage.getOrdersByStatus ? await storage.getOrdersByStatus("completed") : (await storage.getOrders()).filter(o => o.status === "completed");
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching public completed orders:", error);
+      res.status(500).json({ message: "Failed to fetch completed orders" });
+    }
+  });
   // Auth middleware - setup login/logout/session routes
   setupAuth(app);
 

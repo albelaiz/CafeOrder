@@ -12,6 +12,7 @@ import { Bell, Users, TrendingUp, Star } from "lucide-react";
 import type { OrderWithItems } from "@shared/schema";
 
 export default function Staff() {
+  // ...existing code...
   const [orderFilter, setOrderFilter] = useState("all");
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -75,16 +76,64 @@ export default function Staff() {
 
   return (
     <div className="min-h-screen bg-cafe-bg">
+      {/* Prominent Logout Button in Header */}
+      <header className="w-full flex justify-end items-center px-8 py-6 bg-white/90 shadow-md sticky top-0 z-50">
+        <Button
+          variant="destructive"
+          size="lg"
+          className="text-lg px-8 py-3 font-bold shadow-lg border-2 border-red-600"
+          onClick={() => {
+            localStorage.clear();
+            window.location.href = "/";
+          }}
+        >
+          Logout
+        </Button>
+      </header>
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Staff Dashboard Header */}
         <Card className="mb-8">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Staff Dashboard</h2>
-                <p className="text-gray-600">Manage orders and café operations</p>
+              <div className="flex items-center gap-4 mb-2">
+                <button
+                  type="button"
+                  aria-label="Go to home page"
+                  onClick={() => (window.location.href = "/")}
+                  className="focus:outline-none"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-cafe-brown hover:scale-110 transition-transform duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 17h8a4 4 0 004-4V7a2 2 0 00-2-2H6a2 2 0 00-2 2v6a4 4 0 004 4z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 21h8" /></svg>
+                </button>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">Staff Dashboard</h2>
+                  <p className="text-gray-600">Manage orders and café operations</p>
+                </div>
+                <div className="ml-4">
+                  <Button
+                    variant="outline"
+                    className="border-red-500 text-red-600 hover:bg-red-50"
+                    onClick={() => {
+                      localStorage.clear();
+                      window.location.href = "/";
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </div>
               </div>
               <div className="flex items-center space-x-4 mt-4 md:mt-0">
+                <Button
+                  variant="outline"
+                  className="border-cafe-brown text-cafe-brown hover:bg-cafe-light"
+                  onClick={() => {
+                    queryClient.refetchQueries({ queryKey: ["/api/orders"] });
+                    queryClient.refetchQueries({ queryKey: ["/api/tables"] });
+                    queryClient.refetchQueries({ queryKey: ["/api/analytics/stats"] });
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582M20 20v-5h-.581M5.635 19A9 9 0 003 12c0-5 4-9 9-9 2.21 0 4.21.805 5.793 2.135M18.364 5A9 9 0 0121 12c0 5-4 9-9 9-2.21 0-4.21-.805-5.793-2.135" /></svg>
+                  Refresh
+                </Button>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-cafe-brown">
                     {stats?.pendingOrders || 0}
