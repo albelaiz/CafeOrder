@@ -1,61 +1,101 @@
-
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Coffee, QrCode, Smartphone, Clock, Users, Star, MapPin, BarChart, Package } from "lucide-react";
+import { Coffee, Smartphone, Clock, Users, Star, MapPin, BarChart, Package } from "lucide-react";
+
+interface Table {
+  id: number;
+  number: number;
+  status: string;
+  capacity: number;
+  qrCode: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Stats {
+  totalRevenue: number;
+  totalOrders: number;
+}
+
+interface Order {
+  id: string;
+  items: Array<{ quantity: number }>;
+}
 
 export default function Home() {
   const [tableNumber, setTableNumber] = useState("");
+  const [tables, setTables] = useState<Table[]>([]);
+  const [tablesLoading, setTablesLoading] = useState(true);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
 
-  // Fetch analytics stats for overview (public endpoint)
-  const { data: stats, isLoading: statsLoading } = useQuery<{ totalRevenue: number; totalOrders: number; }>(
-    {
-      queryKey: ["/api/public/analytics/stats"],
-      queryFn: async () => {
-        const res = await apiRequest("GET", "/api/public/analytics/stats");
-        return res.json();
-      },
-    }
-  );
+  // Fetch tables from API with real-time updates
+  useEffect(() => {
+    const fetchTables = async () => {
+      try {
+        const res = await fetch('/api/public/tables');
+        const data = await res.json();
+        setTables(data);
+        setTablesLoading(false);
+      } catch (error) {
+        console.error('Error fetching tables:', error);
+        setTablesLoading(false);
+      }
+    };
 
-  // Fetch all completed orders to calculate total items sold (public endpoint)
-  const { data: completedOrders = [], isLoading: ordersLoading } = useQuery<any[]>({
-    queryKey: ["/api/public/orders/completed"],
-    queryFn: async () => {
-      const res = await apiRequest("GET", "/api/public/orders/completed");
-      return res.json();
-    },
-  });
+    fetchTables();
+    const interval = setInterval(fetchTables, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch stats
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/api/public/analytics/stats');
+        const data = await res.json();
+        setStats(data);
+        setStatsLoading(false);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        setStatsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  // Fetch completed orders
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch('/api/public/orders/completed');
+        const data = await res.json();
+        setCompletedOrders(data);
+        setOrdersLoading(false);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+        setOrdersLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   // Calculate total items sold
   const totalItemsSold = completedOrders.reduce((sum, order) => {
     if (!order.items) return sum;
-    return sum + order.items.reduce((itemSum: number, item: any) => itemSum + (item.quantity || 0), 0);
+    return sum + order.items.reduce((itemSum: any, item: any) => itemSum + (item.quantity || 0), 0);
   }, 0);
-
-  // Fetch tables from public API (no auth required)
-  const { data: tables = [], isLoading: tablesLoading } = useQuery<any[]>({
-    queryKey: ["/api/public/tables"],
-    queryFn: async () => {
-      const res = await apiRequest("GET", "/api/public/tables");
-      return res.json();
-    },
-    refetchInterval: 3000, // Poll every 3 seconds for real-time updates
-    refetchOnWindowFocus: true, // Also refetch when user focuses the tab
-  });
 
   const handleOrderNow = () => {
     if (tableNumber) {
       window.location.href = `/order?t=${tableNumber}`;
     }
-  };
-
-  const generateQRCode = (table: number) => {
-    const orderUrl = `${window.location.origin}/order?t=${table}`;
-    return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(orderUrl)}`;
   };
 
   return (
@@ -87,6 +127,7 @@ export default function Home() {
           </Card>
         </div>
       </div>
+
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-cafe-brown to-cafe-light text-white py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
