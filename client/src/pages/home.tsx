@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Coffee, QrCode, Smartphone, Clock, Users, Star, MapPin, BarChart, Package } from "lucide-react";
 
-
+export default function Home() {
   const [tableNumber, setTableNumber] = useState("");
 
   // Fetch analytics stats for overview (public endpoint)
@@ -43,7 +43,7 @@ import { Coffee, QrCode, Smartphone, Clock, Users, Star, MapPin, BarChart, Packa
       const res = await apiRequest("GET", "/api/public/tables");
       return res.json();
     },
-    refetchInterval: 5000, // Poll every 5 seconds for new tables
+    refetchInterval: 3000, // Poll every 3 seconds for real-time updates
     refetchOnWindowFocus: true, // Also refetch when user focuses the tab
   });
 

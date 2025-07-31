@@ -134,6 +134,7 @@ export default function AdminNew() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/public/tables"] });
       toast({
         title: "Table Created",
         description: "New table has been added successfully.",
@@ -156,6 +157,7 @@ export default function AdminNew() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/public/tables"] });
       toast({
         title: "Table Deleted",
         description: "The table has been removed.",

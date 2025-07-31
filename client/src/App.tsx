@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigation } from "@/components/Navigation";
 import { useState } from "react";
-import HomeModern from "@/pages/home-modern";
+import Home from "@/pages/home";
 import OrderModern from "@/pages/order-modern";
 import ThankYouNew from "@/pages/thank-you-new";
 import StaffUltraModern from "@/pages/staff-ultra-modern";
@@ -18,7 +18,7 @@ function Router() {
   return (
     <Switch>
       {/* Public routes - no authentication required */}
-      <Route path="/" component={HomeModern} />
+      <Route path="/" component={Home} />
       <Route path="/order" component={OrderModern} />
       <Route path="/thank-you" component={ThankYouNew} />
 
