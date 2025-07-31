@@ -39,6 +39,17 @@ export function registerRoutes(app: Express): Server {
       res.status(500).json({ message: "Failed to fetch completed orders" });
     }
   });
+
+  // Public tables endpoint (no auth required for customer view)
+  app.get("/api/public/tables", async (req, res) => {
+    try {
+      const tables = await storage.getTables();
+      res.json(tables);
+    } catch (error) {
+      console.error("Error fetching public tables:", error);
+      res.status(500).json({ message: "Failed to fetch tables" });
+    }
+  });
   // Auth middleware - setup login/logout/session routes
   setupAuth(app);
 

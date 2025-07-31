@@ -136,6 +136,7 @@ export default function AdminUltraModern() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/public/tables"] });
       queryClient.invalidateQueries({ queryKey: ["/api/analytics/stats"] });
       toast({
         title: "Table created successfully",
@@ -160,6 +161,7 @@ export default function AdminUltraModern() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/tables"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/public/tables"] });
     },
   });
 

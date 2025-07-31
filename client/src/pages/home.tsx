@@ -36,11 +36,11 @@ import { Coffee, QrCode, Smartphone, Clock, Users, Star, MapPin, BarChart, Packa
     return sum + order.items.reduce((itemSum: number, item: any) => itemSum + (item.quantity || 0), 0);
   }, 0);
 
-  // Fetch tables from API
+  // Fetch tables from public API (no auth required)
   const { data: tables = [], isLoading: tablesLoading } = useQuery<any[]>({
-    queryKey: ["/api/tables"],
+    queryKey: ["/api/public/tables"],
     queryFn: async () => {
-      const res = await apiRequest("GET", "/api/tables");
+      const res = await apiRequest("GET", "/api/public/tables");
       return res.json();
     },
     refetchInterval: 5000, // Poll every 5 seconds for new tables
@@ -216,6 +216,54 @@ import { Coffee, QrCode, Smartphone, Clock, Users, Star, MapPin, BarChart, Packa
         </div>
       </div>
 
+      {/* Quick Table Access */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              Quick Table Access
+            </h2>
+            <p className="text-xl text-gray-600">
+              Don't have a QR code? Select your table number below
+            </p>
+          </div>
+          
+          {tablesLoading ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-cafe-accent"></div>
+              <p className="text-gray-500 mt-2">Loading tables...</p>
+            </div>
+          ) : tables.length === 0 ? (
+            <div className="text-center py-8">
+              <MapPin className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 mb-4">No tables available yet</p>
+              <p className="text-sm text-gray-400">Please check back later or ask our staff for assistance</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-4 max-w-4xl mx-auto">
+              {tables.slice().sort((a, b) => a.number - b.number).map((table) => (
+                <Button
+                  key={table.id}
+                  onClick={() => window.location.href = `/order?t=${table.number}`}
+                  variant="outline"
+                  className="h-16 text-lg font-semibold hover:bg-cafe-light hover:border-cafe-accent hover:text-cafe-brown transition-all duration-200 group"
+                >
+                  <div className="flex flex-col items-center">
+                    <MapPin className="w-4 h-4 mb-1 group-hover:text-cafe-brown" />
+                    <span>{table.number}</span>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          )}
+          
+          <div className="text-center mt-8">
+            <p className="text-gray-500">
+              Can't find your table? Ask our friendly staff for assistance.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Staff Login Section */}
       <div className="bg-cafe-brown text-white py-8">

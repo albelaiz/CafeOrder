@@ -152,8 +152,6 @@ export const insertTableSchema = createInsertSchema(tables).omit({
   qrCode: true,
   createdAt: true,
   updatedAt: true,
-}).extend({
-  status: z.string().default("available"),
 });
 
 // Types

@@ -44,7 +44,10 @@ export interface IStorage {
   // Table operations
   getTables(): Promise<Table[]>;
   getTable(id: number): Promise<Table | undefined>;
+  createTable(data: InsertTable): Promise<Table>;
+  updateTable(id: number, data: Partial<InsertTable>): Promise<Table>;
   updateTableStatus(id: number, status: string): Promise<Table>;
+  deleteTable(id: number): Promise<void>;
 
   // Analytics
   getOrderStats(): Promise<{
@@ -244,13 +247,8 @@ export class DatabaseStorage implements IStorage {
   async getOrderStats(): Promise<{
     totalOrders: number;
     pendingOrders: number;
-    completedOrders: number;
-    totalRevenue: number;
-    ordersToday: number;
-    ordersThisWeek: number;
-    ordersThisMonth: number;
-    mostOrderedItems: Array<{ name: string; count: number; category: string }>;
-    activeTables: number;
+    completedToday: number;
+    revenue: number;
   }> {
     const allOrders = await db.select().from(orders);
     const today = new Date();
@@ -303,13 +301,8 @@ export class DatabaseStorage implements IStorage {
     return {
       totalOrders,
       pendingOrders,
-      completedOrders,
-      totalRevenue,
-      ordersToday,
-      ordersThisWeek,
-      ordersThisMonth,
-      mostOrderedItems,
-      activeTables,
+      completedToday: ordersToday,
+      revenue: totalRevenue,
     };
   }
 }
