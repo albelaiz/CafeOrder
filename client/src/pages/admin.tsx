@@ -958,28 +958,17 @@ export default function Admin() {
                           placeholder="Enter table number" 
                         />
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Capacity</label>
-                        <Input 
-                          id="tableCapacity"
-                          type="number" 
-                          placeholder="Number of seats" 
-                          defaultValue="4"
-                        />
-                      </div>
+                      {/* Capacity field removed as requested */}
                       <div className="flex justify-end space-x-2 pt-4">
                         <Button variant="outline">Cancel</Button>
                         <Button 
                           className="bg-cafe-accent hover:bg-orange-600"
                           onClick={async () => {
                             const numberInput = document.getElementById('tableNumber') as HTMLInputElement;
-                            const capacityInput = document.getElementById('tableCapacity') as HTMLInputElement;
-
                             if (numberInput.value) {
                               try {
                                 const response = await apiRequest("POST", "/api/tables", {
-                                  number: parseInt(numberInput.value),
-                                  capacity: parseInt(capacityInput.value) || 4
+                                  number: parseInt(numberInput.value)
                                 });
 
                                 if (response.ok) {
@@ -1060,25 +1049,14 @@ export default function Admin() {
                             defaultValue="1"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-2">Capacity</label>
-                          <Input 
-                            id="firstTableCapacity"
-                            type="number" 
-                            placeholder="4" 
-                            defaultValue="4"
-                          />
-                        </div>
+                        {/* Capacity field removed as requested */}
                         <Button 
                           className="w-full bg-cafe-accent hover:bg-orange-600"
                           onClick={async () => {
                             const numberInput = document.getElementById('firstTableNumber') as HTMLInputElement;
-                            const capacityInput = document.getElementById('firstTableCapacity') as HTMLInputElement;
-
                             try {
                               const response = await apiRequest("POST", "/api/tables", {
-                                number: parseInt(numberInput.value) || 1,
-                                capacity: parseInt(capacityInput.value) || 4
+                                number: parseInt(numberInput.value) || 1
                               });
 
                               if (response.ok) {
@@ -1169,7 +1147,7 @@ export default function Admin() {
                                   <Table className="w-5 h-5 mr-2 text-gray-600" />
                                   Table {table.number}
                                 </div>
-                                <div className="text-sm text-gray-600">{table.capacity} seats capacity</div>
+                                {/* Capacity removed as requested */}
                               </div>
                               <Badge className={
                                 table.status === "available" ? "bg-green-100 text-green-800" : 
