@@ -379,23 +379,7 @@ export default function Home() {
               </div>
             </div>
             
-            <div>
-              <h5 className="text-lg font-semibold mb-6 text-emerald-400">Quick Links</h5>
-              <div className="space-y-3">
-                <a href="#features" className="block text-slate-400 hover:text-emerald-400 transition-colors duration-200 text-lg">
-                  Features
-                </a>
-                <a href="#pricing" className="block text-slate-400 hover:text-emerald-400 transition-colors duration-200 text-lg">
-                  Pricing
-                </a>
-                <a href="#support" className="block text-slate-400 hover:text-emerald-400 transition-colors duration-200 text-lg">
-                  Support
-                </a>
-                <a href="#demo" className="block text-slate-400 hover:text-emerald-400 transition-colors duration-200 text-lg">
-                  Request Demo
-                </a>
-              </div>
-            </div>
+            {/* Quick Links removed as requested */}
           </div>
           
           <div className="border-t border-slate-800 mt-12 pt-8 text-center">
