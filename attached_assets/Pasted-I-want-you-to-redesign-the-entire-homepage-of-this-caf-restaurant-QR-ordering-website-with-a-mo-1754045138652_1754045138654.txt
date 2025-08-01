@@ -1,0 +1,38 @@
+I want you to redesign the **entire homepage** of this café/restaurant QR-ordering website with a modern, elegant, and clean style. This site will be shown to actual restaurant owners, so the design must look beautiful, professional, and high-end.
+
+🎯 Objectives:
+- The whole homepage should be polished — not just "Quick Table Access"
+- Use soft, elegant colors that suit cafés/restaurants (e.g., cream, espresso, dark wood tones, soft pastels)
+- Add professional typography and consistent font sizing (Tailwind recommended)
+- Use beautiful spacing and layout structure (grid/flex), not crowded or flat
+- Add visually pleasing section backgrounds (e.g., soft gradient or card layouts)
+- Use tasteful icons and visuals where appropriate (you can use HeroIcons or Lucide)
+- Use Tailwind CSS to apply styling cleanly and semantically
+- The page must be responsive and mobile-friendly
+- Add hover states, transitions, and minor animation touches to bring life to the page
+
+📌 Sections to include (you can improve the structure):
+1. **Hero Section**  
+   - A bold, clean headline like: “Order directly from your table”  
+   - Subtext: “No waiting, no signup required. Just scan and order.”  
+   - Add a call-to-action if useful (e.g., “Start Order” button)
+
+2. **Quick Table Access**  
+   - Grid-based cards/buttons with clean labels like "Table 1"  
+   - Must update in real-time (keep the fetch logic and debug block intact)
+   - Style the cards like mini menu tiles — visually attractive and clickable
+
+3. **How It Works** section  
+   - Use icons (or image placeholders) + short steps:  
+     1. Scan QR Code  
+     2. Choose Items  
+     3. Place Order  
+     4. Enjoy!
+
+4. **Why Choose Us** section  
+   - 2–3 short selling points (e.g., “No App Required”, “Fast & Reliable”, “Fully Customizable”)
+
+5. **Footer**  
+   - Basic footer with your branding or café contact info
+
+🎨 Feel free to improve the layout with designer-level decisions. This must feel like a finished, polished MVP that could be shown to a client.
