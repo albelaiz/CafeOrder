@@ -9,7 +9,10 @@ import {
   Phone,
   Mail,
   MapPinIcon,
-  MapPin
+  MapPin,
+  TrendingUp,
+  TrendingDown,
+  DollarSign
 } from "lucide-react";
 
 interface Table {
@@ -22,10 +25,19 @@ interface Table {
   updatedAt: string;
 }
 
+interface RevenueStats {
+  totalRevenue: number;
+  currentMonthRevenue: number;
+  previousMonthRevenue: number;
+  percentageChange: number;
+}
+
 export default function Home() {
   const [tableNumber, setTableNumber] = useState("");
   const [tables, setTables] = useState<Table[]>([]);
   const [tablesLoading, setTablesLoading] = useState(true);
+  const [revenueStats, setRevenueStats] = useState<RevenueStats | null>(null);
+  const [revenueLoading, setRevenueLoading] = useState(true);
 
   // Fetch tables from API with real-time updates
   useEffect(() => {
@@ -43,6 +55,25 @@ export default function Home() {
 
     fetchTables();
     const interval = setInterval(fetchTables, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch revenue stats with real-time updates
+  useEffect(() => {
+    const fetchRevenueStats = async () => {
+      try {
+        const res = await fetch('/api/public/revenue');
+        const data = await res.json();
+        setRevenueStats(data);
+        setRevenueLoading(false);
+      } catch (error) {
+        console.error('Error fetching revenue stats:', error);
+        setRevenueLoading(false);
+      }
+    };
+
+    fetchRevenueStats();
+    const interval = setInterval(fetchRevenueStats, 5000); // Update every 5 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -245,7 +276,95 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Total Revenue Section */}
+      <section className="py-16 bg-gradient-to-r from-emerald-50 to-teal-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+                Total Revenue
+              </h2>
+              <p className="text-lg text-slate-600">
+                Real-time revenue tracking and performance insights
+              </p>
+            </div>
+            
+            {revenueLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4 animate-pulse">
+                  <DollarSign className="w-8 h-8 text-emerald-600" />
+                </div>
+                <p className="text-slate-500 text-lg">Loading revenue data...</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Total Revenue Card */}
+                <Card className="bg-white border-0 shadow-2xl rounded-3xl overflow-hidden">
+                  <CardContent className="p-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mr-4">
+                          <DollarSign className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-slate-700">Total Revenue</h3>
+                          <p className="text-sm text-slate-500">All-time earnings</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-4xl font-bold text-slate-900 mb-2">
+                      ${revenueStats?.totalRevenue.toFixed(2) || '0.00'}
+                    </div>
+                    <div className="text-sm text-slate-600">
+                      From completed orders
+                    </div>
+                  </CardContent>
+                </Card>
 
+                {/* Monthly Performance Card */}
+                <Card className="bg-white border-0 shadow-2xl rounded-3xl overflow-hidden">
+                  <CardContent className="p-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mr-4 ${
+                          (revenueStats?.percentageChange || 0) >= 0 
+                            ? 'bg-gradient-to-br from-emerald-500 to-green-600' 
+                            : 'bg-gradient-to-br from-red-500 to-red-600'
+                        }`}>
+                          {(revenueStats?.percentageChange || 0) >= 0 ? (
+                            <TrendingUp className="w-6 h-6 text-white" />
+                          ) : (
+                            <TrendingDown className="w-6 h-6 text-white" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-slate-700">This Month</h3>
+                          <p className="text-sm text-slate-500">Current month revenue</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-4xl font-bold text-slate-900 mb-2">
+                      ${revenueStats?.currentMonthRevenue.toFixed(2) || '0.00'}
+                    </div>
+                    <div className={`flex items-center text-sm font-medium ${
+                      (revenueStats?.percentageChange || 0) >= 0 
+                        ? 'text-emerald-600' 
+                        : 'text-red-600'
+                    }`}>
+                      {(revenueStats?.percentageChange || 0) >= 0 ? (
+                        <TrendingUp className="w-4 h-4 mr-1" />
+                      ) : (
+                        <TrendingDown className="w-4 h-4 mr-1" />
+                      )}
+                      {Math.abs(revenueStats?.percentageChange || 0).toFixed(1)}% from last month
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="bg-slate-900 text-white py-16">

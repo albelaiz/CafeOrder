@@ -29,6 +29,17 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Public revenue stats (for home page revenue section)
+  app.get("/api/public/revenue", async (req, res) => {
+    try {
+      const revenueStats = await storage.getRevenueStats();
+      res.json(revenueStats);
+    } catch (error) {
+      console.error("Error fetching revenue stats:", error);
+      res.status(500).json({ message: "Failed to fetch revenue stats" });
+    }
+  });
+
   // Public completed orders (for home page total items sold)
   app.get("/api/public/orders/completed", async (req, res) => {
     try {

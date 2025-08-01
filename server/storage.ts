@@ -305,6 +305,45 @@ export class DatabaseStorage implements IStorage {
       revenue: totalRevenue,
     };
   }
+
+  async getRevenueStats(): Promise<{
+    totalRevenue: number;
+    currentMonthRevenue: number;
+    previousMonthRevenue: number;
+    percentageChange: number;
+  }> {
+    const allOrders = await db.select().from(orders).where(eq(orders.status, "completed"));
+    
+    const now = new Date();
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+    
+    const totalRevenue = allOrders.reduce((sum, order) => sum + parseFloat(order.total), 0);
+    
+    const currentMonthOrders = allOrders.filter(order => 
+      order.createdAt && new Date(order.createdAt) >= currentMonthStart
+    );
+    const currentMonthRevenue = currentMonthOrders.reduce((sum, order) => sum + parseFloat(order.total), 0);
+    
+    const previousMonthOrders = allOrders.filter(order => 
+      order.createdAt && 
+      new Date(order.createdAt) >= previousMonthStart && 
+      new Date(order.createdAt) <= previousMonthEnd
+    );
+    const previousMonthRevenue = previousMonthOrders.reduce((sum, order) => sum + parseFloat(order.total), 0);
+    
+    const percentageChange = previousMonthRevenue > 0 
+      ? ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100
+      : currentMonthRevenue > 0 ? 100 : 0;
+    
+    return {
+      totalRevenue,
+      currentMonthRevenue,
+      previousMonthRevenue,
+      percentageChange: Math.round(percentageChange * 100) / 100,
+    };
+  }
 }
 
 export const storage = new DatabaseStorage();
