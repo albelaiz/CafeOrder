@@ -5,19 +5,15 @@ import { Input } from "@/components/ui/input";
 import { 
   Coffee, 
   Smartphone, 
-  Clock, 
-  Users, 
-  Star, 
-  MapPin, 
-  BarChart, 
-  Package, 
   QrCode,
   Zap,
   Shield,
   Heart,
   Phone,
   Mail,
-  MapPinIcon
+  MapPinIcon,
+  MapPin,
+  CheckCircle
 } from "lucide-react";
 
 interface Table {
@@ -30,24 +26,10 @@ interface Table {
   updatedAt: string;
 }
 
-interface Stats {
-  totalRevenue: number;
-  totalOrders: number;
-}
-
-interface Order {
-  id: string;
-  items: Array<{ quantity: number }>;
-}
-
 export default function Home() {
   const [tableNumber, setTableNumber] = useState("");
   const [tables, setTables] = useState<Table[]>([]);
   const [tablesLoading, setTablesLoading] = useState(true);
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
 
   // Fetch tables from API with real-time updates
   useEffect(() => {
@@ -68,46 +50,6 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch stats
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await fetch('/api/public/analytics/stats');
-        const data = await res.json();
-        setStats(data);
-        setStatsLoading(false);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-        setStatsLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
-  // Fetch completed orders
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await fetch('/api/public/orders/completed');
-        const data = await res.json();
-        setCompletedOrders(data);
-        setOrdersLoading(false);
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-        setOrdersLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, []);
-
-  // Calculate total items sold
-  const totalItemsSold = completedOrders.reduce((sum, order) => {
-    if (!order.items) return sum;
-    return sum + order.items.reduce((itemSum: any, item: any) => itemSum + (item.quantity || 0), 0);
-  }, 0);
-
   const handleOrderNow = () => {
     if (tableNumber) {
       window.location.href = `/order?t=${tableNumber}`;
@@ -115,137 +57,119 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-amber-50/30">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-stone-100">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-amber-900 via-amber-800 to-stone-900">
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-stone-900">
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
         }}></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+        
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
             <div className="flex justify-center mb-8">
               <div className="relative">
-                <div className="absolute inset-0 bg-amber-400 rounded-full blur-xl opacity-30 animate-pulse"></div>
-                <Coffee className="relative w-20 h-20 text-amber-200 hover:scale-110 transition-transform duration-300 cursor-pointer" />
+                <div className="absolute inset-0 bg-emerald-400 rounded-full blur-2xl opacity-20 animate-pulse"></div>
+                <Coffee className="relative w-16 h-16 text-emerald-300 hover:scale-110 transition-transform duration-500 cursor-pointer" />
               </div>
             </div>
             
-            <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 tracking-tight">
-              <span className="bg-gradient-to-r from-amber-200 to-amber-100 bg-clip-text text-transparent">
-                Café Direct
+            <h1 className="text-5xl lg:text-7xl font-bold text-white mb-8 tracking-tight leading-tight">
+              Order directly from 
+              <span className="block bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+                your table
               </span>
             </h1>
             
-            <p className="text-xl lg:text-2xl text-amber-100 mb-4 max-w-3xl mx-auto leading-relaxed">
-              Order directly from your table
+            <p className="text-xl lg:text-2xl text-slate-300 mb-4 max-w-3xl mx-auto">
+              No signup. No waiting. Just scan and order.
             </p>
-            <p className="text-lg text-amber-200/80 mb-12 max-w-2xl mx-auto">
-              No waiting, no signup required. Just scan and order.
+            <p className="text-lg text-slate-400 mb-12 max-w-2xl mx-auto">
+              Transform your restaurant experience with seamless QR code ordering
             </p>
 
             {/* Quick Order Input */}
-            <div className="max-w-md mx-auto mb-8">
+            <div className="max-w-lg mx-auto mb-12">
               <div className="relative">
-                <div className="flex rounded-2xl overflow-hidden shadow-2xl bg-white/10 backdrop-blur-sm border border-amber-300/20">
+                <div className="flex rounded-2xl overflow-hidden shadow-2xl bg-white/5 backdrop-blur-lg border border-white/10">
                   <Input
                     type="number"
-                    placeholder="Enter table number"
+                    placeholder="Enter your table number"
                     value={tableNumber}
                     onChange={(e) => setTableNumber(e.target.value)}
-                    className="flex-1 bg-white/90 border-0 text-gray-900 placeholder:text-gray-500 text-lg py-4 px-6 rounded-l-2xl focus:ring-2 focus:ring-amber-400"
+                    className="flex-1 bg-white/95 border-0 text-slate-900 placeholder:text-slate-500 text-lg py-6 px-6 rounded-l-2xl focus:ring-2 focus:ring-emerald-400 font-medium"
                   />
                   <Button
                     onClick={handleOrderNow}
                     disabled={!tableNumber}
-                    className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold px-8 py-4 rounded-r-2xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                    className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold px-8 py-6 rounded-r-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-lg"
                   >
                     Start Order
                   </Button>
                 </div>
               </div>
-              <p className="text-amber-200/70 text-sm mt-3">
-                Find your table number on the table tent
+              <p className="text-slate-400 text-sm mt-4">
+                Find your table number on the table card
               </p>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-              <Card className="bg-white/10 backdrop-blur-md border-amber-300/20 hover:bg-white/15 transition-all duration-300">
-                <CardContent className="p-6 text-center">
-                  <BarChart className="w-8 h-8 text-amber-300 mx-auto mb-3" />
-                  <div className="text-2xl font-bold text-white mb-1">
-                    {statsLoading ? '...' : (stats?.totalRevenue || 0).toFixed(2)} DH
-                  </div>
-                  <div className="text-amber-200/80 text-sm">Total Sales</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/10 backdrop-blur-md border-amber-300/20 hover:bg-white/15 transition-all duration-300">
-                <CardContent className="p-6 text-center">
-                  <Package className="w-8 h-8 text-amber-300 mx-auto mb-3" />
-                  <div className="text-2xl font-bold text-white mb-1">
-                    {ordersLoading ? '...' : totalItemsSold}
-                  </div>
-                  <div className="text-amber-200/80 text-sm">Items Served</div>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
       </section>
 
       {/* Quick Table Access */}
-      <section className="py-20 bg-gradient-to-b from-white to-stone-50">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-stone-800 mb-6">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
               Quick Table Access
             </h2>
-            <p className="text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed">
-              Don't have a QR code? Select your table number below to start ordering
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+              Don't have a QR code? Select your table number below to start ordering instantly
             </p>
           </div>
           
           {tablesLoading ? (
-            <div className="text-center py-16">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-full mb-4 animate-pulse">
-                <Coffee className="w-8 h-8 text-amber-600" />
+            <div className="text-center py-20">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-100 rounded-full mb-6 animate-pulse">
+                <Coffee className="w-10 h-10 text-emerald-600" />
               </div>
-              <p className="text-stone-500 text-lg">Loading available tables...</p>
+              <p className="text-slate-500 text-xl">Loading available tables...</p>
             </div>
           ) : tables.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-stone-100 rounded-full mb-6">
-                <MapPin className="w-10 h-10 text-stone-400" />
+            <div className="text-center py-20">
+              <div className="inline-flex items-center justify-center w-24 h-24 bg-slate-100 rounded-full mb-8">
+                <MapPin className="w-12 h-12 text-slate-400" />
               </div>
-              <h3 className="text-2xl font-semibold text-stone-700 mb-3">No tables available</h3>
-              <p className="text-stone-500 mb-6">Tables will appear here once they're set up</p>
-              <p className="text-sm text-stone-400">Please ask our staff for assistance</p>
+              <h3 className="text-3xl font-semibold text-slate-800 mb-4">No tables available</h3>
+              <p className="text-slate-600 mb-8 text-lg">Tables will appear here once they're configured</p>
+              <p className="text-sm text-slate-400">Please contact our staff for assistance</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 max-w-6xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 max-w-6xl mx-auto">
               {tables.slice().sort((a, b) => a.number - b.number).map((table) => (
                 <Card
                   key={table.id}
-                  className="group cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-white to-amber-50 border-2 border-amber-100 hover:border-amber-300"
+                  className="group cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-2xl bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 hover:border-emerald-300 rounded-2xl overflow-hidden"
                   onClick={() => window.location.href = `/order?t=${table.number}`}
                 >
-                  <CardContent className="p-6 text-center">
+                  <CardContent className="p-6 text-center relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div className="relative">
-                      <div className="absolute inset-0 bg-amber-200 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300 transform scale-150"></div>
-                      <MapPin className="relative w-8 h-8 text-amber-600 mx-auto mb-3 group-hover:text-amber-700 transition-colors duration-200" />
-                    </div>
-                    <div className="text-2xl font-bold text-stone-800 group-hover:text-amber-800 transition-colors duration-200">
-                      {table.number}
-                    </div>
-                    <div className="text-sm text-stone-500 mt-1">
-                      {table.capacity} seats
-                    </div>
-                    <div className={`text-xs mt-2 px-2 py-1 rounded-full ${
-                      table.status === 'available' 
-                        ? 'bg-emerald-100 text-emerald-700' 
-                        : 'bg-amber-100 text-amber-700'
-                    }`}>
-                      {table.status}
+                      <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full mb-4 group-hover:from-emerald-200 group-hover:to-teal-200 transition-colors duration-300">
+                        <MapPin className="w-6 h-6 text-emerald-600 group-hover:text-emerald-700 transition-colors duration-200" />
+                      </div>
+                      <div className="text-3xl font-bold text-slate-800 group-hover:text-emerald-800 transition-colors duration-200 mb-2">
+                        {table.number}
+                      </div>
+                      <div className="text-sm text-slate-500 mb-3">
+                        {table.capacity} seats
+                      </div>
+                      <div className={`inline-flex items-center text-xs px-3 py-1 rounded-full font-medium ${
+                        table.status === 'available' 
+                          ? 'bg-emerald-100 text-emerald-700' 
+                          : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {table.status}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -253,8 +177,8 @@ export default function Home() {
             </div>
           )}
           
-          <div className="text-center mt-12">
-            <p className="text-stone-500 text-lg">
+          <div className="text-center mt-16">
+            <p className="text-slate-500 text-lg">
               Can't find your table? Our friendly staff is here to help.
             </p>
           </div>
@@ -262,68 +186,66 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-gradient-to-br from-stone-100 to-amber-50">
+      <section className="py-24 bg-gradient-to-b from-slate-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-stone-800 mb-6">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
               How It Works
             </h2>
-            <p className="text-xl text-stone-600 max-w-2xl mx-auto">
-              Get your order in just three simple steps
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Get your order in three simple steps
             </p>
           </div>
           
-          <div className="grid md:grid-cols-4 gap-8 items-center">
-            <div className="relative text-center group">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110">
-                <QrCode className="w-10 h-10 text-white" />
+          <div className="grid lg:grid-cols-3 gap-12 items-start">
+            <div className="text-center group">
+              <div className="relative mb-8">
+                <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-2xl group-hover:shadow-3xl transition-all duration-500 transform group-hover:scale-110">
+                  <QrCode className="w-12 h-12 text-white" />
+                </div>
+                <div className="absolute -top-3 -right-3 w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg">
+                  1
+                </div>
               </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
-                1
-              </div>
-              <h3 className="text-xl font-semibold text-stone-800 mb-3">
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">
                 Scan QR Code
               </h3>
-              <p className="text-stone-600 leading-relaxed">
-                Use your phone to scan the QR code on your table
+              <p className="text-slate-600 leading-relaxed text-lg">
+                Simply scan the QR code on your table with your phone's camera. No app downloads required.
               </p>
             </div>
 
-            <div className="hidden md:flex justify-center">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent"></div>
-            </div>
-
-            <div className="relative text-center group">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110">
-                <Coffee className="w-10 h-10 text-white" />
+            <div className="text-center group">
+              <div className="relative mb-8">
+                <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-2xl group-hover:shadow-3xl transition-all duration-500 transform group-hover:scale-110">
+                  <Coffee className="w-12 h-12 text-white" />
+                </div>
+                <div className="absolute -top-3 -right-3 w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg">
+                  2
+                </div>
               </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
-                2
-              </div>
-              <h3 className="text-xl font-semibold text-stone-800 mb-3">
-                Choose Items
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">
+                Browse & Order
               </h3>
-              <p className="text-stone-600 leading-relaxed">
-                Browse our menu and add your favorites to the cart
+              <p className="text-slate-600 leading-relaxed text-lg">
+                Explore our menu, customize your items, and add them to your cart. Everything is clearly organized.
               </p>
             </div>
 
-            <div className="hidden md:flex justify-center">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent"></div>
-            </div>
-
-            <div className="relative text-center group">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110">
-                <Heart className="w-10 h-10 text-white" />
+            <div className="text-center group">
+              <div className="relative mb-8">
+                <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-2xl group-hover:shadow-3xl transition-all duration-500 transform group-hover:scale-110">
+                  <Heart className="w-12 h-12 text-white" />
+                </div>
+                <div className="absolute -top-3 -right-3 w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg">
+                  3
+                </div>
               </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
-                3
-              </div>
-              <h3 className="text-xl font-semibold text-stone-800 mb-3">
-                Enjoy!
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">
+                Sit Back & Enjoy
               </h3>
-              <p className="text-stone-600 leading-relaxed">
-                Sit back and relax while we prepare your fresh order
+              <p className="text-slate-600 leading-relaxed text-lg">
+                Relax while we prepare your fresh order. You'll receive updates on your order status.
               </p>
             </div>
           </div>
@@ -331,149 +253,154 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-stone-800 mb-6">
-              Why Choose Café Direct?
+          <div className="text-center mb-20">
+            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
+              Why Choose Our Platform?
             </h2>
-            <p className="text-xl text-stone-600 max-w-2xl mx-auto">
-              Experience the future of dining with our innovative ordering system
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Experience the future of restaurant ordering with our innovative solution
             </p>
           </div>
           
-          <div className="grid lg:grid-cols-3 gap-8">
-            <Card className="group hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-stone-50 to-amber-50 overflow-hidden">
+          <div className="grid lg:grid-cols-4 gap-8">
+            <Card className="group hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-slate-50 to-white overflow-hidden rounded-2xl">
               <CardContent className="p-8 text-center relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="relative">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110">
                     <Smartphone className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-stone-800 mb-4">
+                  <h3 className="text-xl font-bold text-slate-800 mb-4">
                     No App Required
                   </h3>
-                  <p className="text-stone-600 leading-relaxed text-lg">
-                    Simply scan the QR code with your phone's camera. No downloads, no accounts, no hassle.
+                  <p className="text-slate-600 leading-relaxed">
+                    Works with any smartphone camera. No downloads, no storage space needed.
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="group hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-stone-50 to-amber-50 overflow-hidden">
+            <Card className="group hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-slate-50 to-white overflow-hidden rounded-2xl">
               <CardContent className="p-8 text-center relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="relative">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110">
+                    <CheckCircle className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-4">
+                    Simple & Fast
+                  </h3>
+                  <p className="text-slate-600 leading-relaxed">
+                    Intuitive interface that customers love. Place orders in under 2 minutes.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="group hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-slate-50 to-white overflow-hidden rounded-2xl">
+              <CardContent className="p-8 text-center relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110">
                     <Zap className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-stone-800 mb-4">
-                    Fast & Reliable
+                  <h3 className="text-xl font-bold text-slate-800 mb-4">
+                    Lightning Fast
                   </h3>
-                  <p className="text-stone-600 leading-relaxed text-lg">
-                    Lightning-fast ordering with real-time updates. Know exactly when your order is ready.
+                  <p className="text-slate-600 leading-relaxed">
+                    Real-time order processing with instant notifications and updates.
                   </p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="group hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-stone-50 to-amber-50 overflow-hidden">
+            <Card className="group hover:shadow-2xl transition-all duration-500 border-0 bg-gradient-to-br from-slate-50 to-white overflow-hidden rounded-2xl">
               <CardContent className="p-8 text-center relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="relative">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-110">
                     <Shield className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-stone-800 mb-4">
+                  <h3 className="text-xl font-bold text-slate-800 mb-4">
                     Fully Customizable
                   </h3>
-                  <p className="text-stone-600 leading-relaxed text-lg">
-                    Tailored to your restaurant's needs with flexible menu management and branding options.
+                  <p className="text-slate-600 leading-relaxed">
+                    Adapt to your restaurant's brand with flexible menu and design options.
                   </p>
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Staff Access */}
-      <section className="py-16 bg-gradient-to-r from-stone-800 to-stone-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h3 className="text-3xl font-bold text-white mb-6">Staff & Admin Portal</h3>
-          <p className="text-stone-300 text-lg mb-8 max-w-2xl mx-auto">
-            Manage your restaurant operations with our powerful admin dashboard
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              onClick={() => window.location.href = "/staff"}
-              className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-lg"
-            >
-              <Users className="w-5 h-5 mr-3" />
-              Staff Dashboard
-            </Button>
-            <Button
-              onClick={() => window.location.href = "/admin"}
-              className="bg-gradient-to-r from-stone-600 to-stone-700 hover:from-stone-700 hover:to-stone-800 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-lg"
-            >
-              <Coffee className="w-5 h-5 mr-3" />
-              Admin Portal
-            </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-stone-900 text-white py-12">
+      <footer className="bg-slate-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-12">
             <div>
-              <div className="flex items-center mb-4">
-                <Coffee className="w-8 h-8 text-amber-400 mr-3" />
+              <div className="flex items-center mb-6">
+                <Coffee className="w-8 h-8 text-emerald-400 mr-3" />
                 <h4 className="text-2xl font-bold">Café Direct</h4>
               </div>
-              <p className="text-stone-400 leading-relaxed">
-                Revolutionizing the dining experience with seamless QR code ordering technology.
+              <p className="text-slate-400 leading-relaxed text-lg mb-6">
+                Revolutionizing restaurant dining with seamless QR code ordering technology.
               </p>
+              <div className="flex space-x-4">
+                <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors duration-200 cursor-pointer">
+                  <span className="text-sm font-bold">FB</span>
+                </div>
+                <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors duration-200 cursor-pointer">
+                  <span className="text-sm font-bold">TW</span>
+                </div>
+                <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-emerald-600 transition-colors duration-200 cursor-pointer">
+                  <span className="text-sm font-bold">IN</span>
+                </div>
+              </div>
             </div>
             
             <div>
-              <h5 className="text-lg font-semibold mb-4 text-amber-400">Contact Info</h5>
-              <div className="space-y-3">
-                <div className="flex items-center text-stone-400">
-                  <Phone className="w-4 h-4 mr-3" />
+              <h5 className="text-lg font-semibold mb-6 text-emerald-400">Contact Information</h5>
+              <div className="space-y-4">
+                <div className="flex items-center text-slate-400 hover:text-white transition-colors duration-200">
+                  <Phone className="w-5 h-5 mr-4" />
                   <span>+212 123 456 789</span>
                 </div>
-                <div className="flex items-center text-stone-400">
-                  <Mail className="w-4 h-4 mr-3" />
+                <div className="flex items-center text-slate-400 hover:text-white transition-colors duration-200">
+                  <Mail className="w-5 h-5 mr-4" />
                   <span>hello@cafedirect.com</span>
                 </div>
-                <div className="flex items-center text-stone-400">
-                  <MapPinIcon className="w-4 h-4 mr-3" />
+                <div className="flex items-center text-slate-400 hover:text-white transition-colors duration-200">
+                  <MapPinIcon className="w-5 h-5 mr-4" />
                   <span>Casablanca, Morocco</span>
                 </div>
               </div>
             </div>
             
             <div>
-              <h5 className="text-lg font-semibold mb-4 text-amber-400">Quick Links</h5>
-              <div className="space-y-2">
-                <a href="/staff" className="block text-stone-400 hover:text-amber-400 transition-colors duration-200">
-                  Staff Portal
+              <h5 className="text-lg font-semibold mb-6 text-emerald-400">Quick Links</h5>
+              <div className="space-y-3">
+                <a href="#features" className="block text-slate-400 hover:text-emerald-400 transition-colors duration-200 text-lg">
+                  Features
                 </a>
-                <a href="/admin" className="block text-stone-400 hover:text-amber-400 transition-colors duration-200">
-                  Admin Dashboard
+                <a href="#pricing" className="block text-slate-400 hover:text-emerald-400 transition-colors duration-200 text-lg">
+                  Pricing
                 </a>
-                <a href="#" className="block text-stone-400 hover:text-amber-400 transition-colors duration-200">
+                <a href="#support" className="block text-slate-400 hover:text-emerald-400 transition-colors duration-200 text-lg">
                   Support
+                </a>
+                <a href="#demo" className="block text-slate-400 hover:text-emerald-400 transition-colors duration-200 text-lg">
+                  Request Demo
                 </a>
               </div>
             </div>
           </div>
           
-          <div className="border-t border-stone-800 mt-8 pt-8 text-center">
-            <p className="text-stone-400">
-              © 2024 Café Direct. All rights reserved. Built with ❤️ for restaurants.
+          <div className="border-t border-slate-800 mt-12 pt-8 text-center">
+            <p className="text-slate-400 text-lg">
+              © 2024 Café Direct. All rights reserved. Built for the future of dining.
             </p>
           </div>
         </div>
