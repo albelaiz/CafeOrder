@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
+import { dbError } from "./db";
 import { setupAuth, isAuthenticated } from "./auth";
 import { insertMenuItemSchema, insertOrderSchema, insertOrderItemSchema, insertTableSchema } from "@shared/schema";
 import { z } from "zod";
@@ -15,7 +16,16 @@ const orderCreationSchema = z.object({
 export function registerRoutes(app: Express): Server {
   // Health check endpoint for Fly.io
   app.get("/api/health", (req, res) => {
-    res.status(200).send('OK');
+    if (dbError) {
+      console.error("Health check failed: Database connection error.", dbError);
+      res.status(503).json({
+        status: "error",
+        message: "Service Unavailable: Database connection is not configured or has failed.",
+        error: dbError.message,
+      });
+    } else {
+      res.status(200).json({ status: "ok", message: "Service is healthy" });
+    }
   });
 
   // Public analytics stats (for home page overview)
