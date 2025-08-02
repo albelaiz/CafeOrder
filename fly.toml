@@ -18,6 +18,7 @@ primary_region = 'sjc'
 
 [checks]
   [checks.http]
+    type = "http"
     interval = "15s"
     timeout = "10s"
     grace_period = "10s"

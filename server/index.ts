@@ -1,3 +1,5 @@
+
+
 import { config } from "dotenv";
 
 // Load environment variables from .env file BEFORE importing other modules
@@ -5,7 +7,8 @@ config();
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+let serveStatic: typeof import("./viteStatic").serveStatic;
+let log: typeof import("./viteStatic").log;
 
 const app = express();
 app.use(express.json());
@@ -34,14 +37,19 @@ app.use((req, res, next) => {
         logLine = logLine.slice(0, 79) + "…";
       }
 
-      log(logLine);
+      // Only log in production
+      if (process.env.NODE_ENV === "production") {
+        import("./viteStatic.js").then(({ log }) => log(logLine));
+      } else {
+        console.log(logLine);
+      }
     }
   });
 
   next();
 });
 
-(async () => {
+async function start() {
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -52,20 +60,28 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
+  if (process.env.NODE_ENV === "development") {
+    // Only import dev server in development
+    const { startDevServer } = await import("./devServer.js");
+    await startDevServer(app, server);
   } else {
+    // Only import static serving in production
+    const { serveStatic, log } = await import("./viteStatic.js");
     serveStatic(app);
+    // Log server start in production
+    const PORT = parseInt(process.env.PORT || '8080', 10);
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on port ${PORT}`);
+      log(`serving on port ${PORT}`);
+    });
+    return;
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Default to 8080 for production (Fly.io), 5000 for development.
-  const PORT = parseInt(process.env.PORT || (app.get("env") === "production" ? '8080' : '5000'), 10);
+  // Log server start in development
+  const PORT = parseInt(process.env.PORT || '5000', 10);
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
-    log(`serving on port ${PORT}`);
   });
-})();
+}
+
+start();
