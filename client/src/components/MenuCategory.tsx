@@ -16,7 +16,7 @@ const categories = [
 export function MenuCategory({ selectedCategory, onCategoryChange }: MenuCategoryProps) {
   return (
     <div className="mb-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Our Menu</h2>
+      <h2 className="text-2xl font-bold text-white mb-4">Premium Selections</h2>
       <div className="flex flex-wrap gap-2">
         {categories.map((category) => {
           const IconComponent = category.icon;

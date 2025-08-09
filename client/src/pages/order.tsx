@@ -169,10 +169,11 @@ export default function Order() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
-              <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center mr-3">
-                <span className="text-black font-bold">LC</span>
-              </div>
-              <h1 className="text-2xl font-bold text-white">La Campana</h1>
+              <img 
+                src="/attached_assets/WhatsApp Image 2025-08-09 at 14.06.26_5064a253_1754745015175.jpg"
+                alt="Chef Hicham Restaurant"
+                className="h-12 w-auto"
+              />
             </div>
             <div className="text-right">
               <p className="text-lg text-white font-medium">Table {tableNumber}</p>

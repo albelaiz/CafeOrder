@@ -91,14 +91,12 @@ export default function Home() {
       <nav className="nav-restaurant sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
-                <span className="text-black font-bold text-xl">LC</span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">La Campana</h1>
-                <p className="text-xs text-yellow-400">Premium Dining</p>
-              </div>
+            <div className="flex items-center">
+              <img 
+                src="/attached_assets/WhatsApp Image 2025-08-09 at 14.06.26_5064a253_1754745015175.jpg"
+                alt="Chef Hicham Restaurant"
+                className="h-16 w-auto"
+              />
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
@@ -118,17 +116,18 @@ export default function Home() {
         
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
-            {/* Logo Placeholder - Would use uploaded logo.png */}
             <div className="flex justify-center mb-12 fade-in">
-              <div className="w-32 h-32 bg-yellow-400 rounded-full flex items-center justify-center glow-effect">
-                <span className="text-black font-bold text-4xl">LC</span>
-              </div>
+              <img 
+                src="/attached_assets/WhatsApp Image 2025-08-09 at 14.06.26_5064a253_1754745015175.jpg"
+                alt="Chef Hicham Restaurant"
+                className="h-40 w-auto glow-effect"
+              />
             </div>
             
             <h1 className="text-6xl lg:text-8xl font-bold text-white mb-8 tracking-tight leading-tight fade-in-up">
               Welcome to
               <span className="block text-gradient">
-                La Campana
+                Chef Hicham
               </span>
             </h1>
             
@@ -237,7 +236,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-              Our Menu
+              Premium Selections
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
               Discover our exquisite selection of premium dishes and beverages
@@ -356,10 +355,11 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-12">
             <div>
               <div className="flex items-center mb-6">
-                <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-black font-bold">LC</span>
-                </div>
-                <h4 className="text-2xl font-bold">La Campana</h4>
+                <img 
+                  src="/attached_assets/WhatsApp Image 2025-08-09 at 14.06.26_5064a253_1754745015175.jpg"
+                  alt="Chef Hicham Restaurant"
+                  className="h-10 w-auto mr-3"
+                />
               </div>
               <p className="text-gray-400 leading-relaxed text-lg mb-6">
                 Premium dining experience with seamless QR code ordering technology.
@@ -386,7 +386,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center text-gray-400 hover:text-yellow-400 transition-colors duration-200">
                   <Mail className="w-5 h-5 mr-4" />
-                  <span>hello@lacampana.ma</span>
+                  <span>hello@chefhicham.ma</span>
                 </div>
                 <div className="flex items-center text-gray-400 hover:text-yellow-400 transition-colors duration-200">
                   <MapPinIcon className="w-5 h-5 mr-4" />
@@ -416,7 +416,7 @@ export default function Home() {
           
           <div className="border-t border-yellow-400/20 mt-12 pt-8 text-center">
             <p className="text-gray-400">
-              © 2025 La Campana Restaurant. All rights reserved.
+              © 2025 Chef Hicham Restaurant. All rights reserved.
             </p>
           </div>
         </div>
