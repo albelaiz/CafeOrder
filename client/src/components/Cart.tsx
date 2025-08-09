@@ -26,17 +26,17 @@ export function Cart({
 
   if (cart.length === 0) {
     return (
-      <Card className="sticky top-4">
+      <Card className="sticky top-4 card-restaurant">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <ShoppingCart className="w-5 h-5 mr-2" />
+          <CardTitle className="flex items-center text-white">
+            <ShoppingCart className="w-5 h-5 mr-2 text-yellow-400" />
             Your Cart
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">Your cart is empty</p>
+            <ShoppingCart className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+            <p className="text-gray-300">Your cart is empty</p>
             <p className="text-sm text-gray-400 mt-1">
               Add items from the menu to get started
             </p>
@@ -47,14 +47,14 @@ export function Cart({
   }
 
   return (
-    <Card className="sticky top-4">
+    <Card className="sticky top-4 card-restaurant">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-white">
           <div className="flex items-center">
-            <ShoppingCart className="w-5 h-5 mr-2" />
+            <ShoppingCart className="w-5 h-5 mr-2 text-yellow-400" />
             Your Cart
           </div>
-          <Badge variant="secondary">
+          <Badge className="bg-yellow-400/20 text-yellow-400 border border-yellow-400/30">
             {cart.reduce((sum, item) => sum + item.quantity, 0)} items
           </Badge>
         </CardTitle>

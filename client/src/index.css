@@ -1,39 +1,41 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* Modern Color Palette */
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --secondary: #64748b;
-  --accent: #f59e0b;
+  /* Restaurant Color Palette - Black & Gold */
+  --primary: #FFD700;
+  --primary-dark: #B8860B;
+  --primary-light: #FFED4E;
+  --secondary: #1a1a1a;
+  --accent: #FFD700;
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
   
-  /* Neutral Grays */
-  --gray-50: #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-400: #94a3b8;
-  --gray-500: #64748b;
-  --gray-600: #475569;
-  --gray-700: #334155;
-  --gray-800: #1e293b;
-  --gray-900: #0f172a;
+  /* Black & Dark Grays */
+  --black: #000000;
+  --gray-900: #0a0a0a;
+  --gray-800: #1a1a1a;
+  --gray-700: #2a2a2a;
+  --gray-600: #3a3a3a;
+  --gray-500: #4a4a4a;
+  --gray-400: #6a6a6a;
+  --gray-300: #8a8a8a;
+  --gray-200: #aaaaaa;
+  --gray-100: #cccccc;
   
-  /* Semantic Colors */
-  --background: #ffffff;
-  --surface: #f8fafc;
-  --surface-hover: #f1f5f9;
-  --border: #e2e8f0;
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
+  /* Semantic Colors - Restaurant Theme */
+  --background: #000000;
+  --surface: #1a1a1a;
+  --surface-hover: #2a2a2a;
+  --border: #3a3a3a;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted: #8a8a8a;
+  --text-accent: #FFD700;
   
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -42,18 +44,21 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
   
   /* Border Radius */
   --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
   
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  /* Shadows - Gold Glow Effects */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+  --shadow-gold: 0 0 20px rgb(255 215 0 / 0.3);
+  --shadow-gold-lg: 0 0 30px rgb(255 215 0 / 0.4);
 }
 
 * {
@@ -63,39 +68,46 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   line-height: 1.6;
   color: var(--text-primary);
   background-color: var(--background);
+  background-image: radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
-/* Custom Component Classes */
+/* Restaurant Component Classes */
 .glass-effect {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 215, 0, 0.2);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-gold-lg);
 }
 
 .pulse-slow {
   animation: pulse 3s ease-in-out infinite;
+}
+
+.glow-effect {
+  animation: glow 2s ease-in-out infinite alternate;
 }
 
 @keyframes pulse {
@@ -107,34 +119,123 @@ body {
   }
 }
 
-.card-modern {
-  background: var(--background);
-  border: 1px solid var(--border);
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.2);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  }
+}
+
+.card-restaurant {
+  background: var(--surface);
+  border: 2px solid transparent;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-modern:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-primary {
-  background: var(--primary);
-  color: white;
+.card-restaurant::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.card-restaurant:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-gold);
+  transform: translateY(-4px);
+}
+
+.card-restaurant:hover::before {
+  opacity: 1;
+}
+
+.btn-restaurant {
+  background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
+  color: #000000;
   border: none;
   border-radius: var(--radius-md);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  font-weight: 500;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: var(--spacing-sm) var(--spacing-xl);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-primary:hover {
-  background: var(--primary-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+.btn-restaurant::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.btn-restaurant:hover {
+  box-shadow: var(--shadow-gold);
+  transform: translateY(-2px);
+}
+
+.btn-restaurant:hover::before {
+  left: 100%;
+}
+
+.btn-restaurant:active {
+  transform: translateY(0);
+}
+
+.nav-restaurant {
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-link:hover {
+  color: var(--primary);
+}
+
+.nav-link:hover::after {
+  width: 80%;
 }
 
 .status-pending {
@@ -192,58 +293,51 @@ body {
   }
 }
 
+/* Shadcn UI Theme - Restaurant Black & Gold */
 :root {
-  --background: hsl(45, 29%, 97%);
-  --foreground: hsl(20, 14.3%, 4.1%);
-  --muted: hsl(45, 25%, 92%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(20, 14.3%, 4.1%);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(20, 14.3%, 4.1%);
-  --border: hsl(20, 5.9%, 90%);
-  --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(24, 87%, 33%);
-  --primary-foreground: hsl(60, 9.1%, 97.8%);
-  --secondary: hsl(45, 25%, 92%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(16, 91%, 60%);
-  --accent-foreground: hsl(60, 9.1%, 97.8%);
+  --background: hsl(0, 0%, 0%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(0, 0%, 10%);
+  --muted-foreground: hsl(0, 0%, 55%);
+  --popover: hsl(0, 0%, 6%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(0, 0%, 6%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(0, 0%, 23%);
+  --input: hsl(0, 0%, 15%);
+  --primary: hsl(51, 100%, 50%);
+  --primary-foreground: hsl(0, 0%, 0%);
+  --secondary: hsl(0, 0%, 10%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(51, 100%, 50%);
+  --accent-foreground: hsl(0, 0%, 0%);
   --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(20, 14.3%, 4.1%);
-  --radius: 0.5rem;
-  
-  /* Café-themed custom properties */
-  --cafe-brown: hsl(24, 87%, 33%);
-  --cafe-light: hsl(24, 68%, 45%);
-  --cafe-accent: hsl(16, 91%, 60%);
-  --cafe-bg: hsl(45, 29%, 97%);
-  --cafe-success: hsl(120, 60%, 35%);
-  --cafe-error: hsl(0, 84%, 44%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(51, 100%, 50%);
+  --radius: 0.75rem;
 }
 
 .dark {
-  --background: hsl(240, 10%, 3.9%);
+  --background: hsl(0, 0%, 0%);
   --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
+  --muted: hsl(0, 0%, 10%);
+  --muted-foreground: hsl(0, 0%, 55%);
+  --popover: hsl(0, 0%, 6%);
   --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 3.9%);
+  --card: hsl(0, 0%, 6%);
   --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(24, 87%, 33%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(240, 3.7%, 15.9%);
+  --border: hsl(0, 0%, 23%);
+  --input: hsl(0, 0%, 15%);
+  --primary: hsl(51, 100%, 50%);
+  --primary-foreground: hsl(0, 0%, 0%);
+  --secondary: hsl(0, 0%, 10%);
   --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
-  --accent-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(51, 100%, 50%);
+  --accent-foreground: hsl(0, 0%, 0%);
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(240, 4.9%, 83.9%);
-  --radius: 0.5rem;
+  --ring: hsl(51, 100%, 50%);
+  --radius: 0.75rem;
 }
 
 @layer base {
@@ -257,59 +351,55 @@ body {
 }
 
 @layer utilities {
-  .bg-cafe-brown {
-    background-color: var(--cafe-brown);
+  .bg-restaurant-black {
+    background-color: var(--black);
   }
   
-  .bg-cafe-light {
-    background-color: var(--cafe-light);
+  .bg-restaurant-surface {
+    background-color: var(--surface);
   }
   
-  .bg-cafe-accent {
-    background-color: var(--cafe-accent);
+  .bg-restaurant-gold {
+    background-color: var(--primary);
   }
   
-  .bg-cafe-bg {
-    background-color: var(--cafe-bg);
+  .text-restaurant-gold {
+    color: var(--primary);
   }
   
-  .bg-cafe-success {
-    background-color: var(--cafe-success);
+  .text-restaurant-primary {
+    color: var(--text-primary);
   }
   
-  .bg-cafe-error {
-    background-color: var(--cafe-error);
+  .text-restaurant-secondary {
+    color: var(--text-secondary);
   }
   
-  .text-cafe-brown {
-    color: var(--cafe-brown);
+  .border-restaurant-gold {
+    border-color: var(--primary);
   }
   
-  .text-cafe-light {
-    color: var(--cafe-light);
+  .border-restaurant-border {
+    border-color: var(--border);
   }
   
-  .text-cafe-accent {
-    color: var(--cafe-accent);
+  .hover\:bg-restaurant-surface:hover {
+    background-color: var(--surface-hover);
   }
   
-  .text-cafe-success {
-    color: var(--cafe-success);
+  .hover\:text-restaurant-gold:hover {
+    color: var(--primary);
   }
   
-  .text-cafe-error {
-    color: var(--cafe-error);
+  .shadow-restaurant-gold {
+    box-shadow: var(--shadow-gold);
   }
   
-  .border-cafe-brown {
-    border-color: var(--cafe-brown);
+  .glow-gold {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
   }
   
-  .hover\:bg-cafe-light:hover {
-    background-color: var(--cafe-light);
-  }
-  
-  .hover\:bg-cafe-accent:hover {
-    background-color: var(--cafe-accent);
+  .hover\:glow-gold:hover {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
   }
 }

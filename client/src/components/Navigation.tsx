@@ -24,56 +24,51 @@ export function Navigation() {
   );
 
   return (
-    <nav className="bg-gradient-to-r from-orange-600 to-orange-700 dark:from-gray-800 dark:to-gray-900 text-white shadow-lg sticky top-0 z-50 border-b border-orange-500/20">
+    <nav className="nav-restaurant">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
-            <Coffee className="w-8 h-8 text-orange-100" />
+            <div className="relative">
+              <Coffee className="w-8 h-8 text-yellow-400 glow-effect" />
+            </div>
             <div>
-              <h1 className="text-xl font-bold">Café Direct</h1>
-              <p className="text-xs text-orange-100/80">Staff Portal</p>
+              <h1 className="text-xl font-bold text-white">Café Direct</h1>
+              <p className="text-xs text-yellow-400">Staff Portal</p>
             </div>
           </div>
           
           <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/10 transition-all duration-200"
-              onClick={() => setLocation("/")}
-            >
+            <a href="/" className="nav-link">
               <Home className="w-4 h-4 mr-2" />
               Customer View
-            </Button>
+            </a>
             
             {availableItems.map((item) => {
               const Icon = item.icon;
               const isActive = location === item.path;
               
               return (
-                <Button
+                <button
                   key={item.id}
-                  variant="ghost"
-                  size="sm"
-                  className={`transition-all duration-200 ${
+                  className={`nav-link ${
                     isActive
-                      ? "bg-white/20 text-white shadow-md"
-                      : "text-white hover:bg-white/10"
+                      ? "text-yellow-400"
+                      : ""
                   }`}
                   onClick={() => setLocation(item.path)}
                 >
                   <Icon className="w-4 h-4 mr-2" />
                   {item.label}
-                </Button>
+                </button>
               );
             })}
             
-            <div className="w-px h-6 bg-white/20 mx-2" />
+            <div className="w-px h-6 bg-yellow-400/20 mx-2" />
             
             <div className="flex items-center space-x-3">
               <div className="text-right">
-                <p className="text-sm font-medium">{user.firstName} {user.lastName}</p>
-                <p className="text-xs text-orange-100/80 capitalize">{user.role}</p>
+                <p className="text-sm font-medium text-white">{user.firstName} {user.lastName}</p>
+                <p className="text-xs text-yellow-400 capitalize">{user.role}</p>
               </div>
               <Button
                 variant="ghost"

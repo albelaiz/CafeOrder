@@ -144,35 +144,44 @@ export default function Order() {
 
   if (!tableNumber) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-cafe-bg">
+      <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cafe-brown mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="w-12 h-12 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-cafe-bg">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <div className="bg-gradient-to-r from-cafe-brown to-cafe-light text-white py-8">
+      <div className="nav-restaurant">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="flex items-center mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-cafe-light mr-4"
-              onClick={() => setLocation('/')}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <Coffee className="w-8 h-8 mr-3" />
-            <h1 className="text-3xl font-bold">Café Direct</h1>
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-yellow-400/20 mr-4"
+                onClick={() => setLocation('/')}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              <Coffee className="w-8 h-8 mr-3 text-yellow-400 glow-effect" />
+              <h1 className="text-2xl font-bold text-white">Café Direct</h1>
+            </div>
+            <div className="text-right">
+              <p className="text-yellow-400 font-medium">Table {tableNumber}</p>
+            </div>
           </div>
-          <div className="text-center">
-            <p className="text-lg opacity-90 mb-4">Order directly from your table - No waiting required!</p>
+        </div>
+      </div>
+      
+      <div className="py-8">
+        <div className="text-center mb-8">
+          <p className="text-xl text-gray-300 mb-4">Order directly from your table - No waiting required!</p>
             <div className="flex justify-center items-center">
               <div className="flex items-center bg-white/20 rounded-lg px-4 py-2">
                 <MapPin className="w-5 h-5 mr-2" />
