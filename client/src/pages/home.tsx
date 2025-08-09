@@ -123,7 +123,6 @@ export default function Home() {
           </div>
         </div>
       </nav>
-
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-black min-h-screen flex items-center">
         <div className="absolute inset-0 opacity-5" style={{
@@ -152,9 +151,7 @@ export default function Home() {
             
             <h1 className="text-6xl lg:text-8xl font-bold text-white mb-8 tracking-tight leading-tight fade-in-up">
               Welcome to
-              <span className="block text-gradient">
-                Chef Hicham
-              </span>
+              <span className="block text-gradient">LA CAMPANA</span>
             </h1>
             
             <p className="text-2xl lg:text-3xl text-gray-300 mb-6 max-w-4xl mx-auto font-medium fade-in-delay-1">
@@ -256,7 +253,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Menu Preview Section */}
       <section id="menu" className="py-24 bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
