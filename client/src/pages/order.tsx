@@ -170,10 +170,22 @@ export default function Order() {
                 Back
               </Button>
               <img 
-                src="/attached_assets/WhatsApp Image 2025-08-09 at 14.06.26_5064a253_1754745015175.jpg"
+                src="/chef-hicham-logo.jpg"
                 alt="Chef Hicham Restaurant"
                 className="h-12 w-auto"
+                onError={(e) => {
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
               />
+              <div className="flex items-center space-x-2" style={{display: 'none'}}>
+                <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
+                  <span className="text-black font-bold">CH</span>
+                </div>
+                <h1 className="text-2xl font-bold text-white">Chef Hicham</h1>
+              </div>
             </div>
             <div className="text-right">
               <p className="text-lg text-white font-medium">Table {tableNumber}</p>

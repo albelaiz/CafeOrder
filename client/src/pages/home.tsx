@@ -93,10 +93,26 @@ export default function Home() {
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center">
               <img 
-                src="/attached_assets/WhatsApp Image 2025-08-09 at 14.06.26_5064a253_1754745015175.jpg"
+                src="/chef-hicham-logo.jpg"
                 alt="Chef Hicham Restaurant"
                 className="h-16 w-auto"
+                onError={(e) => {
+                  // Fallback if image doesn't load
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'block';
+                }}
               />
+              <div className="flex items-center space-x-4" style={{display: 'none'}}>
+                <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
+                  <span className="text-black font-bold text-xl">CH</span>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">Chef Hicham</h1>
+                  <p className="text-xs text-yellow-400">Premium Restaurant</p>
+                </div>
+              </div>
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
@@ -118,10 +134,20 @@ export default function Home() {
           <div className="text-center">
             <div className="flex justify-center mb-12 fade-in">
               <img 
-                src="/attached_assets/WhatsApp Image 2025-08-09 at 14.06.26_5064a253_1754745015175.jpg"
+                src="/chef-hicham-logo.jpg"
                 alt="Chef Hicham Restaurant"
                 className="h-40 w-auto glow-effect"
+                onError={(e) => {
+                  // Fallback if image doesn't load
+                  const target = e.currentTarget as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
               />
+              <div className="w-32 h-32 bg-yellow-400 rounded-full flex items-center justify-center glow-effect" style={{display: 'none'}}>
+                <span className="text-black font-bold text-4xl">CH</span>
+              </div>
             </div>
             
             <h1 className="text-6xl lg:text-8xl font-bold text-white mb-8 tracking-tight leading-tight fade-in-up">
@@ -356,10 +382,20 @@ export default function Home() {
             <div>
               <div className="flex items-center mb-6">
                 <img 
-                  src="/attached_assets/WhatsApp Image 2025-08-09 at 14.06.26_5064a253_1754745015175.jpg"
+                  src="/chef-hicham-logo.jpg"
                   alt="Chef Hicham Restaurant"
                   className="h-10 w-auto mr-3"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    target.style.display = 'none';
+                    const fallback = target.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
                 />
+                <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center mr-3" style={{display: 'none'}}>
+                  <span className="text-black font-bold">CH</span>
+                </div>
+                <h4 className="text-2xl font-bold">Chef Hicham</h4>
               </div>
               <p className="text-gray-400 leading-relaxed text-lg mb-6">
                 Premium dining experience with seamless QR code ordering technology.
