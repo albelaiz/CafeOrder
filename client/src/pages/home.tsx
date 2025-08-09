@@ -253,57 +253,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/* Menu Preview Section */}
-      <section id="menu" className="py-24 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-              Premium Selections
-            </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Discover our exquisite selection of premium dishes and beverages
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="card-restaurant hover-lift p-8 text-center">
-              <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Coffee className="w-8 h-8 text-black" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Premium Coffee</h3>
-              <p className="text-gray-300 mb-6">Artisan-crafted espresso, cappuccinos, and specialty blends</p>
-              <div className="text-yellow-400 font-semibold">From 25 DH</div>
-            </div>
-            
-            <div className="card-restaurant hover-lift p-8 text-center">
-              <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-black font-bold text-2xl">🍽️</span>
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Gourmet Dishes</h3>
-              <p className="text-gray-300 mb-6">Fresh, locally-sourced ingredients in every carefully crafted meal</p>
-              <div className="text-yellow-400 font-semibold">From 85 DH</div>
-            </div>
-            
-            <div className="card-restaurant hover-lift p-8 text-center">
-              <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-black font-bold text-2xl">🍰</span>
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Sweet Desserts</h3>
-              <p className="text-gray-300 mb-6">Indulgent desserts and pastries made fresh daily</p>
-              <div className="text-yellow-400 font-semibold">From 35 DH</div>
-            </div>
-          </div>
-          
-          <div className="text-center mt-12">
-            <button 
-              onClick={() => setLocation('/order')}
-              className="btn-restaurant text-lg px-8 py-4"
-            >
-              View Full Menu
-            </button>
-          </div>
-        </div>
-      </section>
+      
       {/* How It Works */}
       <section className="py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
