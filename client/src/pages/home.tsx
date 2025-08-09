@@ -141,7 +141,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Quick Table Access */}
       <section className="py-24 bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -207,7 +206,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* How It Works */}
       <section className="py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -274,9 +272,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Total Revenue section removed as requested */}
-
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-16 border-t border-yellow-400/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -315,7 +311,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center text-gray-400 hover:text-yellow-400 transition-colors duration-200">
                   <MapPinIcon className="w-5 h-5 mr-4" />
-                  <span>Casablanca, Morocco</span>
+                  <span>Martil, Morocco</span>
                 </div>
               </div>
             </div>
