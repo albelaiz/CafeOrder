@@ -65,8 +65,8 @@ export function Cart({
           {cart.map((item) => (
             <div key={item.menuItemId} className="flex items-center justify-between">
               <div className="flex-1">
-                <h4 className="text-sm font-medium text-gray-800">{item.name}</h4>
-                <p className="text-xs text-gray-600">{item.price.toFixed(2)} DH each</p>
+                <h4 className="text-sm font-medium text-white">{item.name}</h4>
+                <p className="text-xs text-gray-300">{item.price.toFixed(2)} DH each</p>
               </div>
               
               <div className="flex items-center space-x-2">
@@ -75,12 +75,12 @@ export function Cart({
                   size="sm"
                   onClick={() => onUpdateQuantity(item.menuItemId, item.quantity - 1)}
                   disabled={item.quantity <= 1}
-                  className="h-6 w-6 p-0"
+                  className="h-6 w-6 p-0 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black"
                 >
                   <Minus className="w-3 h-3" />
                 </Button>
                 
-                <span className="text-sm font-medium w-8 text-center">
+                <span className="text-sm font-medium w-8 text-center text-white">
                   {item.quantity}
                 </span>
                 
@@ -88,7 +88,7 @@ export function Cart({
                   variant="outline"
                   size="sm"
                   onClick={() => onUpdateQuantity(item.menuItemId, item.quantity + 1)}
-                  className="h-6 w-6 p-0"
+                  className="h-6 w-6 p-0 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black"
                 >
                   <Plus className="w-3 h-3" />
                 </Button>
@@ -97,7 +97,7 @@ export function Cart({
                   variant="ghost"
                   size="sm"
                   onClick={() => onRemoveItem(item.menuItemId)}
-                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                  className="h-6 w-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-400/10"
                 >
                   <Trash2 className="w-3 h-3" />
                 </Button>
@@ -111,17 +111,17 @@ export function Cart({
         {/* Order Summary */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Subtotal:</span>
-            <span>{subtotal.toFixed(2)} DH</span>
+            <span className="text-gray-300">Subtotal:</span>
+            <span className="text-white">{subtotal.toFixed(2)} DH</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Tax (8.5%):</span>
-            <span>{tax.toFixed(2)} DH</span>
+            <span className="text-gray-300">Tax (8.5%):</span>
+            <span className="text-white">{tax.toFixed(2)} DH</span>
           </div>
-          <Separator />
+          <Separator className="border-gray-700" />
           <div className="flex justify-between font-semibold">
-            <span>Total:</span>
-            <span className="text-cafe-brown">{total.toFixed(2)} DH</span>
+            <span className="text-white">Total:</span>
+            <span className="text-yellow-400">{total.toFixed(2)} DH</span>
           </div>
         </div>
 
@@ -129,11 +129,11 @@ export function Cart({
         <Button
           onClick={onCheckout}
           disabled={isLoading || cart.length === 0}
-          className="w-full bg-cafe-accent hover:bg-orange-600 text-white font-semibold py-3"
+          className="w-full btn-restaurant font-semibold py-3"
         >
           {isLoading ? (
             <div className="flex items-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
               Processing...
             </div>
           ) : (
@@ -141,7 +141,7 @@ export function Cart({
           )}
         </Button>
 
-        <p className="text-xs text-gray-500 text-center">
+        <p className="text-xs text-gray-400 text-center">
           Your order will be prepared fresh and you'll be notified when ready
         </p>
       </CardContent>

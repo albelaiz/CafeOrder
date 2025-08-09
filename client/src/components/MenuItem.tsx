@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Minus } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Coffee, Plus, Minus, ShoppingCart } from "lucide-react";
 import type { MenuItem as MenuItemType } from "@shared/schema";
 
 interface MenuItemProps {
@@ -15,90 +14,56 @@ export function MenuItem({ item, onAddToCart }: MenuItemProps) {
 
   const handleAddToCart = () => {
     onAddToCart(item, quantity);
-    setQuantity(1); // Reset quantity after adding
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "coffee":
-        return "bg-yellow-400/20 text-yellow-400 border border-yellow-400/30";
-      case "food":
-        return "bg-yellow-400/15 text-yellow-300 border border-yellow-300/30";
-      case "desserts":
-        return "bg-yellow-400/25 text-yellow-200 border border-yellow-200/30";
-      default:
-        return "bg-gray-600/20 text-gray-300 border border-gray-300/30";
-    }
+    setQuantity(1);
   };
 
   return (
-    <Card className="card-restaurant hover-lift bg-gray-900 border-gray-700">
-      <div className="aspect-video relative overflow-hidden">
-        {item.imageUrl ? (
-          <img
-            src={item.imageUrl}
-            alt={item.name}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center border-b border-yellow-400/20">
-            <span className="text-yellow-400 text-2xl font-bold">
-              {item.name.charAt(0)}
-            </span>
+    <Card className="card-restaurant hover-lift overflow-hidden">
+      <CardContent className="p-0">
+        <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 relative overflow-hidden">
+          <div className="absolute inset-0 bg-yellow-400/10"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Coffee className="w-12 h-12 text-yellow-400 glow-effect" />
           </div>
-        )}
-        <Badge
-          className={`absolute top-3 right-3 ${getCategoryColor(item.category)} font-medium`}
-        >
-          {item.category}
-        </Badge>
-      </div>
-      
-      <CardContent className="p-6">
-        <div className="mb-4">
-          <h3 className="text-xl font-bold text-white mb-2">
-            {item.name}
-          </h3>
-          {item.description && (
-            <p className="text-sm text-gray-300 mb-3 leading-relaxed">
-              {item.description}
-            </p>
-          )}
-          <p className="text-2xl font-bold text-yellow-400">
-            {parseFloat(item.price).toFixed(2)} DH
-          </p>
         </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              disabled={quantity <= 1}
-              className="border-gray-600 hover:border-yellow-400 hover:bg-yellow-400/10 text-white"
-            >
-              <Minus className="w-4 h-4" />
-            </Button>
-            <span className="px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white font-medium min-w-[3rem] text-center">
-              {quantity}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setQuantity(quantity + 1)}
-              className="border-gray-600 hover:border-yellow-400 hover:bg-yellow-400/10 text-white"
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
+        
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-3">
+            <h3 className="text-xl font-semibold text-white">{item.name}</h3>
+            <span className="text-2xl font-bold text-yellow-400">{item.price} DH</span>
           </div>
           
-          <Button
-            onClick={handleAddToCart}
-            className="btn-restaurant"
-          >
-            Add to Cart
-          </Button>
+          <p className="text-gray-300 mb-4 leading-relaxed">{item.description}</p>
+          
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="h-8 w-8 p-0 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black"
+              >
+                <Minus className="w-4 h-4" />
+              </Button>
+              <span className="w-8 text-center font-medium text-white">{quantity}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setQuantity(quantity + 1)}
+                className="h-8 w-8 p-0 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <Button
+              onClick={handleAddToCart}
+              className="flex-1 btn-restaurant font-medium"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Add to Cart
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

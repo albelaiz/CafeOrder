@@ -163,17 +163,20 @@ export default function Order() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white hover:bg-yellow-400/20 mr-4"
+                className="text-white hover:text-yellow-400 mr-4"
                 onClick={() => setLocation('/')}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
-              <Coffee className="w-8 h-8 mr-3 text-yellow-400 glow-effect" />
-              <h1 className="text-2xl font-bold text-white">Café Direct</h1>
+              <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center mr-3">
+                <span className="text-black font-bold">LC</span>
+              </div>
+              <h1 className="text-2xl font-bold text-white">La Campana</h1>
             </div>
             <div className="text-right">
-              <p className="text-yellow-400 font-medium">Table {tableNumber}</p>
+              <p className="text-lg text-white font-medium">Table {tableNumber}</p>
+              <p className="text-sm text-yellow-400">Order directly from your table</p>
             </div>
           </div>
         </div>

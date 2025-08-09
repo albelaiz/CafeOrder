@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,7 @@ interface RevenueStats {
 }
 
 export default function Home() {
+  const [, setLocation] = useLocation();
   const [tableNumber, setTableNumber] = useState("");
   const [tables, setTables] = useState<Table[]>([]);
   const [tablesLoading, setTablesLoading] = useState(true);
@@ -85,37 +87,60 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Navigation */}
+      <nav className="nav-restaurant sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center">
+                <span className="text-black font-bold text-xl">LC</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">La Campana</h1>
+                <p className="text-xs text-yellow-400">Premium Dining</p>
+              </div>
+            </div>
+            
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#menu" className="nav-link">Menu</a>
+              <a href="#order" className="nav-link">Order</a>
+              <a href="#contact" className="nav-link">Contact</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-black">
+      <section className="relative overflow-hidden bg-black min-h-screen flex items-center">
         <div className="absolute inset-0 opacity-5" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD700' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
         }}></div>
         
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
-            <div className="flex justify-center mb-8">
-              <div className="relative">
-                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-3xl opacity-30 animate-pulse"></div>
-                <Coffee className="relative w-20 h-20 text-yellow-400 hover:scale-110 transition-transform duration-500 cursor-pointer glow-effect" />
+            {/* Logo Placeholder - Would use uploaded logo.png */}
+            <div className="flex justify-center mb-12 fade-in">
+              <div className="w-32 h-32 bg-yellow-400 rounded-full flex items-center justify-center glow-effect">
+                <span className="text-black font-bold text-4xl">LC</span>
               </div>
             </div>
             
-            <h1 className="text-6xl lg:text-8xl font-bold text-white mb-8 tracking-tight leading-tight">
-              Order directly from 
+            <h1 className="text-6xl lg:text-8xl font-bold text-white mb-8 tracking-tight leading-tight fade-in-up">
+              Welcome to
               <span className="block text-gradient">
-                your table
+                La Campana
               </span>
             </h1>
             
-            <p className="text-2xl lg:text-3xl text-gray-300 mb-6 max-w-4xl mx-auto font-medium">
-              No signup. No waiting. Just scan and order.
+            <p className="text-2xl lg:text-3xl text-gray-300 mb-6 max-w-4xl mx-auto font-medium fade-in-delay-1">
+              Premium dining experience with seamless QR ordering
             </p>
-            <p className="text-lg text-gray-400 mb-16 max-w-3xl mx-auto">
-              Experience premium dining with seamless QR code ordering
+            <p className="text-lg text-gray-400 mb-16 max-w-3xl mx-auto fade-in-delay-2">
+              No signup. No waiting. Just scan and savor.
             </p>
 
             {/* Quick Order Input */}
-            <div className="max-w-lg mx-auto mb-16">
+            <div className="max-w-lg mx-auto mb-16 fade-in-delay-3">
               <div className="relative">
                 <div className="flex rounded-2xl overflow-hidden shadow-2xl glass-effect border-2 border-yellow-400/20">
                   <Input
@@ -206,6 +231,58 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Menu Preview Section */}
+      <section id="menu" className="py-24 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
+              Our Menu
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Discover our exquisite selection of premium dishes and beverages
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="card-restaurant hover-lift p-8 text-center">
+              <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Coffee className="w-8 h-8 text-black" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Premium Coffee</h3>
+              <p className="text-gray-300 mb-6">Artisan-crafted espresso, cappuccinos, and specialty blends</p>
+              <div className="text-yellow-400 font-semibold">From 25 DH</div>
+            </div>
+            
+            <div className="card-restaurant hover-lift p-8 text-center">
+              <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-black font-bold text-2xl">🍽️</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Gourmet Dishes</h3>
+              <p className="text-gray-300 mb-6">Fresh, locally-sourced ingredients in every carefully crafted meal</p>
+              <div className="text-yellow-400 font-semibold">From 85 DH</div>
+            </div>
+            
+            <div className="card-restaurant hover-lift p-8 text-center">
+              <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-black font-bold text-2xl">🍰</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4">Sweet Desserts</h3>
+              <p className="text-gray-300 mb-6">Indulgent desserts and pastries made fresh daily</p>
+              <div className="text-yellow-400 font-semibold">From 35 DH</div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <button 
+              onClick={() => setLocation('/order')}
+              className="btn-restaurant text-lg px-8 py-4"
+            >
+              View Full Menu
+            </button>
+          </div>
+        </div>
+      </section>
       {/* How It Works */}
       <section className="py-24 bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -279,11 +356,13 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-12">
             <div>
               <div className="flex items-center mb-6">
-                <Coffee className="w-8 h-8 text-yellow-400 mr-3 glow-effect" />
-                <h4 className="text-2xl font-bold">Café Direct</h4>
+                <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center mr-3">
+                  <span className="text-black font-bold">LC</span>
+                </div>
+                <h4 className="text-2xl font-bold">La Campana</h4>
               </div>
               <p className="text-gray-400 leading-relaxed text-lg mb-6">
-                Revolutionizing restaurant dining with seamless QR code ordering technology.
+                Premium dining experience with seamless QR code ordering technology.
               </p>
               <div className="flex space-x-4">
                 <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-all duration-300 cursor-pointer border border-gray-700 hover:border-yellow-400">
@@ -303,23 +382,41 @@ export default function Home() {
               <div className="space-y-4">
                 <div className="flex items-center text-gray-400 hover:text-yellow-400 transition-colors duration-200">
                   <Phone className="w-5 h-5 mr-4" />
-                  <span>+212 123 456 789</span>
+                  <span className="text-yellow-400 font-semibold">+212 123 456 789</span>
                 </div>
                 <div className="flex items-center text-gray-400 hover:text-yellow-400 transition-colors duration-200">
                   <Mail className="w-5 h-5 mr-4" />
-                  <span>hello@cafedirect.com</span>
+                  <span>hello@lacampana.ma</span>
                 </div>
                 <div className="flex items-center text-gray-400 hover:text-yellow-400 transition-colors duration-200">
                   <MapPinIcon className="w-5 h-5 mr-4" />
-                  <span>Martil, Morocco</span>
+                  <span>Casablanca, Morocco</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h5 className="text-lg font-semibold mb-6 text-yellow-400">Hours</h5>
+              <div className="space-y-2 text-gray-400">
+                <div className="flex justify-between">
+                  <span>Monday - Thursday</span>
+                  <span>8:00 AM - 10:00 PM</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Friday - Saturday</span>
+                  <span>8:00 AM - 11:00 PM</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sunday</span>
+                  <span>9:00 AM - 9:00 PM</span>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="border-t border-slate-800 mt-12 pt-8 text-center">
-            <p className="text-slate-400 text-lg">
-              © 2024 Café Direct. All rights reserved. Built for the future of dining.
+          <div className="border-t border-yellow-400/20 mt-12 pt-8 text-center">
+            <p className="text-gray-400">
+              © 2025 La Campana Restaurant. All rights reserved.
             </p>
           </div>
         </div>
